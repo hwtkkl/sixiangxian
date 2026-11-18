@@ -129,7 +129,7 @@ kbd{display:inline-block;border:1px solid #CBD2DC;border-bottom-width:2px;border
     <input type="date" class="dpick" id="dpick" aria-label="选择日期">
     <button class="hbtn" id="bToday">今天</button>
   </div>
-  <div class="stats"><span id="stxt"></span><div class="bar"><i id="sbar"></i></div></div>
+  <div class="stats"><span id="stxt"></span><div class="bar"><i id="sbar"></i></div><span id="syncSt" style="font-size:12px;white-space:nowrap;opacity:.9"></span></div>
 </header>
 <main id="grid"></main>
 
@@ -179,8 +179,15 @@ kbd{display:inline-block;border:1px solid #CBD2DC;border-bottom-width:2px;border
     <button class="btn" id="mImport">导入备份</button>
     <input type="file" id="fImport" accept=".json,application/json" hidden>
   </div>
-  <h2 style="margin-top:16px">导出表格</h2>
-  <p class="hint">导出成表格文件（.csv），可以用 Excel、WPS、Numbers 打开查看、打印、做周报。表格只用来看，不能导回程序；换设备搬数据请用上面的“导出备份”。</p>
+  <h2 style="margin-top:16px">多设备同步</h2>
+  <p class="hint">数据先在这台设备上加密，再存进你自己的 GitHub 私有仓库，GitHub 和任何人都只能看到乱码。每台设备填同样的三项，就会自动同步：打开时取最新，改动后几秒内上传，断网时先存本机。<b>同步密码只存在你的设备上，忘了就解不开云端数据。</b></p>
+  <div class="fld"><label>私有仓库（用户名/仓库名）</label><input id="sRepo" placeholder="hwtkkl/sixiangxian-data" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
+  <div class="fld"><label>访问令牌（github_pat_ 开头）</label><input id="sTok" type="password" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
+  <div class="fld"><label>同步密码（自己定，至少 6 位，每台设备填同一个）</label><input id="sPw" type="password" autocomplete="new-password"></div>
+  <div class="acts"><button class="btn pri" id="sSave">保存并开始同步</button><button class="btn" id="sNow">立即同步</button><button class="btn del" id="sOff">停止同步</button></div>
+  <p class="hint" id="sInfo"></p>
+  <h2 style="margin-top:16px">导出 Excel 表格</h2>
+  <p class="hint">导出成 Excel 文件（.xlsx），列宽、换行、表头、象限颜色都排好了，Excel、WPS、Numbers 都能打开，适合查看、打印、做周报。表格只用来看，不能导回程序；换设备搬数据请用上面的“导出备份”。</p>
   <div class="fld" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
     <span class="hint">从</span><input type="date" id="xFrom" style="width:auto;flex:1;min-width:140px">
     <span class="hint">到</span><input type="date" id="xTo" style="width:auto;flex:1;min-width:140px">
@@ -190,7 +197,7 @@ kbd{display:inline-block;border:1px solid #CBD2DC;border-bottom-width:2px;border
     <button class="btn" data-xr="week">本周</button>
     <button class="btn" data-xr="month">本月</button>
     <button class="btn" data-xr="all">全部</button>
-    <button class="btn pri" id="mCsv">导出表格</button>
+    <button class="btn pri" id="mCsv">导出 Excel</button>
   </div>
   <h2 style="margin-top:16px">使用说明</h2>
   <div class="hint">
@@ -198,8 +205,8 @@ kbd{display:inline-block;border:1px solid #CBD2DC;border-bottom-width:2px;border
     2. 点工作内容可以修改，写备忘、改象限、改日期、设提醒、删除。<br>
     3. 用顶部的 ‹ › 或日期框翻看任意一天；“历史”里能看到每天的完成情况。<br>
     4. 以前没做完的工作，会自动复制一份到今天，并标上“延续自某日”。原来那天的记录保留不动。<br>
-    5. 提醒：每项工作右边有个 🔔，点它设置提醒时间、提前多久、响一次还是持续响铃；不需要就不设。灰色表示没设，亮色表示已设。到点会弹窗响铃，可以点“10分钟后再提醒”。网页版只在程序打开时弹出，程序关着也想收到，请点“加入系统日历”。Mac 客户端由系统通知中心提醒，程序关着也会按时提醒。<br>
-    6. 数据只保存在当前设备的浏览器里，不上传任何地方。不同设备之间不互通，可以用“导出备份”和“导入备份”搬数据。清除浏览器数据会把记录一起清掉，建议定期导出备份。<br>
+    5. 提醒：点工作下面的“🔔 提醒”，可以设提醒时间、提前多久、响一次还是持续响铃；不需要就不设。设好后按钮变橙色并显示时间。到点会弹窗响铃，可以点“10分钟后再提醒”。网页版只在程序打开时弹出，程序关着也想收到，请点“加入系统日历”。Mac 客户端由系统通知中心提醒，程序关着也会按时提醒。<br>
+    6. 数据保存在当前设备上。在“更多 → 多设备同步”里填好私有仓库、令牌和同步密码，Mac、iPad、手机之间就会自动同步，上传前先加密。没开同步时，可以用“导出备份”和“导入备份”搬数据。<br>
     7. 语音助手：点“🎤 语音”，把今天的事一口气说完，再点“识别成工作清单”。说“这个很紧急”“这个很重要”会算到上一件事上。
   </div>
   <h2 style="margin-top:16px">快捷键（电脑，或接了键盘的 iPad）</h2>
@@ -282,17 +289,60 @@ function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function md(s){const d=parse(s);return (d.getMonth()+1)+'月'+d.getDate()+'日'}
 function short(s){const d=parse(s);return (d.getMonth()+1)+'-'+d.getDate()}
-function load(){try{const o=(NATIVE&&window.__Q4DATA)?window.__Q4DATA:JSON.parse(localStorage.getItem(KEY)||'{}');return{tasks:o.tasks||[],recurs:o.recurs||[],gen:o.gen||{}}}catch(e){return{tasks:[],recurs:[],gen:{}}}}
-function save(){const s=JSON.stringify(S);try{localStorage.setItem(KEY,s)}catch(e){if(!NATIVE)alert('保存失败：'+e.message)}if(NATIVE)nativePost({type:'save',data:s})}
+function load(){try{const o=(NATIVE&&window.__Q4DATA)?window.__Q4DATA:JSON.parse(localStorage.getItem(KEY)||'{}');return{tasks:o.tasks||[],recurs:o.recurs||[],gen:o.gen||{},del:o.del||{},delr:o.delr||{}}}catch(e){return{tasks:[],recurs:[],gen:{},del:{},delr:{}}}}
+function persist(){const s=JSON.stringify(S);try{localStorage.setItem(KEY,s)}catch(e){if(!NATIVE)alert('保存失败：'+e.message)}if(NATIVE)nativePost({type:'save',data:s})}
+function save(){stamp();persist();if(CFG){dirty=true;schedulePush()}}
+
+/* ===== 同步用的修改记录：每条记录记下最后修改时间 u，删掉的记录留删除标记 ===== */
+let SNAP={t:{},r:{}};
+function strip(o){const c=Object.assign({},o);delete c.u;delete c.notified;return JSON.stringify(c)}
+function snap(){SNAP={t:{},r:{}};S.tasks.forEach(x=>SNAP.t[x.id]=strip(x));S.recurs.forEach(x=>SNAP.r[x.id]=strip(x))}
+function stamp(){
+  const now=Date.now();S.del=S.del||{};S.delr=S.delr||{};
+  const one=(list,old,del)=>{const seen={};list.forEach(x=>{seen[x.id]=1;if(old[x.id]!==strip(x)){x.u=now;delete del[x.id]}});for(const id in old)if(!seen[id])del[id]=now};
+  one(S.tasks,SNAP.t,S.del);one(S.recurs,SNAP.r,S.delr);snap();
+}
+function prune(d){const lim=Date.now()-90*864e5,o={};for(const k in d)if(d[k]>lim)o[k]=d[k];return o}
+function mergeData(a,b){
+  const mx=(x,y)=>{const o=Object.assign({},x||{});for(const k in (y||{}))if(!o[k]||y[k]>o[k])o[k]=y[k];return o};
+  const pick=(la,lb,del)=>{const m=new Map();(la||[]).concat(lb||[]).forEach(x=>{const o=m.get(x.id);if(!o||(x.u||0)>(o.u||0))m.set(x.id,x)});return[...m.values()].filter(x=>!(del[x.id]&&del[x.id]>=(x.u||0)))};
+  const del=mx(a.del,b.del),delr=mx(a.delr,b.delr);
+  return{tasks:pick(a.tasks,b.tasks,del),recurs:pick(a.recurs,b.recurs,delr),gen:Object.assign({},a.gen,b.gen),del:prune(del),delr:prune(delr)};
+}
+function norm(o){const by=(a,b)=>a.id<b.id?-1:a.id>b.id?1:0,cl=l=>(l||[]).map(x=>{const c=Object.assign({},x);delete c.notified;return c}).sort(by);const sk=m=>{const r={};Object.keys(m||{}).sort().forEach(k=>r[k]=m[k]);return r};return JSON.stringify({t:cl(o.tasks),r:cl(o.recurs),g:sk(o.gen),d:sk(o.del),dr:sk(o.delr)})}
+
+/* ===== 加密：同步密码 → PBKDF2 → AES-256-GCM，全部在本机完成 ===== */
+const TE=new TextEncoder(),TD=new TextDecoder();
+function b64u8(s){const b=atob(s),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u}
+const KEYC={};
+async function deriveKey(pw,saltB64){
+  const ck=saltB64+'|'+pw;if(KEYC[ck])return KEYC[ck];
+  const base=await crypto.subtle.importKey('raw',TE.encode(pw),'PBKDF2',false,['deriveKey']);
+  return KEYC[ck]=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b64u8(saltB64),iterations:200000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+}
+async function encryptObj(o,pw,saltB64){
+  saltB64=saltB64||b64(crypto.getRandomValues(new Uint8Array(16)));
+  const iv=crypto.getRandomValues(new Uint8Array(12)),k=await deriveKey(pw,saltB64);
+  const ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv:iv},k,TE.encode(JSON.stringify(o))));
+  return JSON.stringify({app:'sixiangxian',v:1,kdf:'PBKDF2-SHA256-200000',enc:'AES-256-GCM',salt:saltB64,iv:b64(iv),ct:b64(ct)});
+}
+async function decryptObj(s,pw){
+  const o=JSON.parse(s),k=await deriveKey(pw,o.salt);
+  const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:b64u8(o.iv)},k,b64u8(o.ct));
+  return JSON.parse(TD.decode(pt));
+}
 
 let S=load();
 let cur=today(),lastToday=today(),editId=null,eQv=1,rQv=1;
+let CFG=null,dirty=false,pushTimer=null,syncing=false,lastSync=0,syncErr='';
+if(!TEST){try{CFG=(NATIVE&&window.__Q4CFG)?window.__Q4CFG:JSON.parse(localStorage.getItem('q4.sync')||'null')}catch(e){CFG=null}}
+snap();
 
 /* 没做完的工作自动延续到今天：原记录保留，并标记已延续；固定工作不延续 */
 function carryOver(){
   const t=today();let n=0;
   S.tasks.filter(x=>x.date<t&&!x.done&&!x.carriedTo&&!x.recurId).forEach(x=>{
-    S.tasks.push({id:uid(),date:t,q:x.q,title:x.title,note:x.note||'',remind:x.remind||'',adv:x.adv,ring:x.ring,done:false,origin:x.origin||x.date,ct:Date.now()});
+    S.tasks.push({id:'c-'+x.id+'-'+t,date:t,q:x.q,title:x.title,note:x.note||'',remind:x.remind||'',adv:x.adv,ring:x.ring,done:false,origin:x.origin||x.date,ct:Date.now()});
     x.carriedTo=t;n++;
   });
   if(n)save();return n;
@@ -303,7 +353,7 @@ function genRecur(d){
   if(d<today())return 0;let n=0;
   S.recurs.forEach(r=>{const k=r.id+'|'+d;
     if(r.active!==false&&d>=r.start&&!S.gen[k]&&matchRecur(r,d)){
-      S.tasks.push({id:uid(),date:d,q:r.q,title:r.title,note:'',remind:r.remind||'',done:false,recurId:r.id,ct:Date.now()});
+      S.tasks.push({id:'r-'+r.id+'-'+d,date:d,q:r.q,title:r.title,note:'',remind:r.remind||'',done:false,recurId:r.id,ct:Date.now()});
       S.gen[k]=1;n++;
     }});
   if(n)save();return n;
@@ -432,7 +482,10 @@ function icsText(date,time,title,note,id,adv){
   return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//SiXiangXian//CN','CALSCALE:GREGORIAN','BEGIN:VEVENT','UID:'+id+'@sixiangxian','DTSTAMP:'+now,'DTSTART:'+st,'DURATION:PT15M','SUMMARY:'+icsEsc(title),'DESCRIPTION:'+icsEsc(note),'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+icsEsc(title),'TRIGGER:-PT'+(adv||0)+'M','END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n');
 }
 function download(name,text,type){
-  if(NATIVE){nativePost({type:'file',name:name,text:text,open:/\.ics$/.test(name)});return}
+  if(NATIVE){
+    if(text instanceof Uint8Array){nativePost({type:'file',name:name,b64:b64(text)});return}
+    nativePost({type:'file',name:name,text:text,open:/\.ics$/.test(name)});return;
+  }
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:type}));a.download=name;
   document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);
 }
@@ -518,7 +571,7 @@ $('bHist').onclick=()=>{
 $('hList').onclick=e=>{const it=e.target.closest('[data-d]');if(!it)return;cur=it.dataset.d;closeM('mHist');render()};
 
 /* 更多：通知、备份 */
-$('bMore').onclick=()=>{setRange('month');openM('mMore')};
+$('bMore').onclick=()=>{setRange('month');fillSync();openM('mMore')};
 $('mNotify').onclick=()=>{
   if(NATIVE){nativePost({type:'askNotify'});alert('Mac 客户端的提醒由系统通知中心负责，程序关着也会按时提醒。如果没收到，请到“系统设置 → 通知 → 四象限工作台”里打开允许通知。');return}
   if(!('Notification' in window)){alert('当前浏览器不支持系统通知。程序打开时仍会在页面顶部弹出提醒。iPad 和 iPhone 需要先把程序“添加到主屏幕”，再从主屏幕打开，才能开启通知。');return}
@@ -527,22 +580,94 @@ $('mNotify').onclick=()=>{
 $('mExport').onclick=()=>download('四象限备份_'+today()+'.json',JSON.stringify({app:'sixiangxian',version:1,exportedAt:new Date().toISOString(),tasks:S.tasks,recurs:S.recurs,gen:S.gen},null,1),'application/json');
 $('mImport').onclick=()=>$('fImport').click();
 
-/* 导出表格（CSV，Excel / WPS / Numbers 可直接打开） */
-function csvCell(v){v=String(v==null?'':v);return /[",\r\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
-function buildCsv(from,to){
+/* 导出表格：生成真正的 Excel 文件（.xlsx），列宽、换行、表头、象限配色都排好 */
+function exportRows(from,to){
   const ls=S.tasks.filter(x=>(!from||x.date>=from)&&(!to||x.date<=to))
     .sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:a.q!==b.q?a.q-b.q:sortTasks(a,b));
-  const head=['日期','星期','象限','象限名称','序号','工作内容','状态','完成时间','提醒时间','备忘','来源'];
-  const rows=[head];let k='',n=0;
-  ls.forEach(x=>{
+  let k='',n=0;
+  return ls.map(x=>{
     const kk=x.date+'|'+x.q;if(kk!==k){k=kk;n=0}n++;
     let st=x.done?'已完成':'未完成';if(!x.done&&x.carriedTo)st='未完成（已延续到'+md(x.carriedTo)+'）';
     let dt='';if(x.done&&x.doneAt){const d=new Date(x.doneAt);dt=fmt(d)+' '+pad(d.getHours())+':'+pad(d.getMinutes())}
     const src=[x.origin?'延续自'+x.origin:'',x.recurId?'固定工作':''].filter(Boolean).join('；');
-    rows.push([x.date,'周'+WK[parse(x.date).getDay()],x.q,Q[x.q].n,n,x.title,st,dt,x.remind||'',x.note||'',src]);
+    const rm=x.remind?((x.rdate&&x.rdate!==x.date?x.rdate+' ':'')+x.remind+(x.adv?'（提前'+(x.adv>=60?x.adv/60+'小时':x.adv+'分钟')+'）':'')):'';
+    return{x:x,cells:[x.date,'周'+WK[parse(x.date).getDay()],x.q,Q[x.q].n,n,x.title,st,dt,rm,x.note||'',src]};
   });
-  return{text:'\uFEFF'+rows.map(r=>r.map(csvCell).join(',')).join('\r\n'),count:ls.length};
 }
+const XHEAD=['日期','星期','象限','象限名称','序号','工作内容','状态','完成时间','提醒','备注','来源'];
+const XW=[12,6,6,12,6,42,18,17,16,38,18];
+function crc32(b){let t=crc32.t;if(!t){t=crc32.t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}}let c=0xFFFFFFFF;for(let i=0;i<b.length;i++)c=t[(c^b[i])&255]^(c>>>8);return(c^0xFFFFFFFF)>>>0}
+function zipStore(files){
+  const enc=new TextEncoder(),parts=[],cd=[];let off=0;
+  files.forEach(f=>{
+    const nm=enc.encode(f.name),d=typeof f.data==='string'?enc.encode(f.data):f.data,crc=crc32(d);
+    const h=new Uint8Array(30+nm.length),v=new DataView(h.buffer);
+    v.setUint32(0,0x04034b50,true);v.setUint16(4,20,true);v.setUint16(6,0x0800,true);v.setUint16(12,0x21,true);
+    v.setUint32(14,crc,true);v.setUint32(18,d.length,true);v.setUint32(22,d.length,true);v.setUint16(26,nm.length,true);h.set(nm,30);
+    const c=new Uint8Array(46+nm.length),w=new DataView(c.buffer);
+    w.setUint32(0,0x02014b50,true);w.setUint16(4,20,true);w.setUint16(6,20,true);w.setUint16(8,0x0800,true);w.setUint16(14,0x21,true);
+    w.setUint32(16,crc,true);w.setUint32(20,d.length,true);w.setUint32(24,d.length,true);w.setUint16(28,nm.length,true);w.setUint32(42,off,true);c.set(nm,46);
+    parts.push(h,d);cd.push(c);off+=h.length+d.length;
+  });
+  const cdl=cd.reduce((a,c)=>a+c.length,0),e=new Uint8Array(22),ev=new DataView(e.buffer);
+  ev.setUint32(0,0x06054b50,true);ev.setUint16(8,files.length,true);ev.setUint16(10,files.length,true);ev.setUint32(12,cdl,true);ev.setUint32(16,off,true);
+  const all=parts.concat(cd,[e]),out=new Uint8Array(all.reduce((a,c)=>a+c.length,0));let p=0;all.forEach(a=>{out.set(a,p);p+=a.length});return out;
+}
+function xe(s){return String(s==null?'':s).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function buildXlsx(from,to){
+  const rows=exportRows(from,to),done=rows.filter(r=>r.x.done).length;
+  const COL='ABCDEFGHIJK',last=3+rows.length;
+  const F='<name val="Microsoft YaHei"/><family val="2"/>';
+  const font=(c,b,sz)=>'<font>'+(b?'<b/>':'')+'<sz val="'+(sz||11)+'"/><color rgb="FF'+c+'"/>'+F+'</font>';
+  const fill=c=>'<fill><patternFill patternType="solid"><fgColor rgb="FF'+c+'"/><bgColor indexed="64"/></patternFill></fill>';
+  const styles='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+   +'<fonts count="11">'+font('1F2933')+font('FFFFFF',1)+font('9AA3AF')+font('1F3A5F',1,15)+font('B3261E',1)+font('1E7E34',1)+font('6B7685',0,10)+font('B3261E',1)+font('1E5BB8',1)+font('A86400',1)+font('5A6372',1)+'</fonts>'
+   +'<fills count="8"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill>'+fill('1F3A5F')+fill('FDECEC')+fill('E8F1FC')+fill('FFF4E0')+fill('F0F2F5')+fill('E6F4EA')+'</fills>'
+   +'<borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left style="thin"><color rgb="FFD0D5DD"/></left><right style="thin"><color rgb="FFD0D5DD"/></right><top style="thin"><color rgb="FFD0D5DD"/></top><bottom style="thin"><color rgb="FFD0D5DD"/></bottom><diagonal/></border></borders>'
+   +'<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="14">'
+   +'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'
+   +'<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>'
+   +'<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>'
+   +'<xf numFmtId="0" fontId="2" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>'
+   +[7,8,9,10].map((f,i)=>'<xf numFmtId="0" fontId="'+f+'" fillId="'+(3+i)+'" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="top" wrapText="1"/></xf>').join('')
+   +'<xf numFmtId="0" fontId="5" fillId="7" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="top" wrapText="1"/></xf>'
+   +'<xf numFmtId="0" fontId="4" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="top" wrapText="1"/></xf>'
+   +'<xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="center"/></xf>'
+   +'<xf numFmtId="0" fontId="6" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="center"/></xf>'
+   +'<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="top" wrapText="1"/></xf>'
+   +'<xf numFmtId="0" fontId="2" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="top" wrapText="1"/></xf>'
+   +'</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
+  const sc=(r,c,v,s)=>'<c r="'+COL[c]+r+'" s="'+s+'" t="inlineStr"><is><t xml:space="preserve">'+xe(v)+'</t></is></c>';
+  const nc=(r,c,v,s)=>'<c r="'+COL[c]+r+'" s="'+s+'"><v>'+v+'</v></c>';
+  const title='四象限工作表　'+(from&&to?(from===to?from:from+' 至 '+to):from?from+' 起':to?'截至 '+to:'全部');
+  let sd='<row r="1" ht="30" customHeight="1">'+sc(1,0,title,10)+'</row>'
+    +'<row r="2" ht="20" customHeight="1">'+sc(2,0,'共 '+rows.length+' 项　已完成 '+done+'　未完成 '+(rows.length-done)+'　导出时间 '+fmt(new Date())+' '+nowHM(),11)+'</row>'
+    +'<row r="3" ht="24" customHeight="1">'+XHEAD.map((h,i)=>sc(3,i,h,1)).join('')+'</row>';
+  rows.forEach((o,i)=>{
+    const r=4+i,d=o.x.done,c=o.cells,b=d?3:2,ctr=d?13:12;
+    sd+='<row r="'+r+'">'+sc(r,0,c[0],ctr)+sc(r,1,c[1],ctr)+nc(r,2,c[2],ctr)+sc(r,3,c[3],4+o.x.q-1)+nc(r,4,c[4],ctr)
+      +sc(r,5,c[5],b)+sc(r,6,c[6],d?8:9)+sc(r,7,c[7],ctr)+sc(r,8,c[8],ctr)+sc(r,9,c[9],b)+sc(r,10,c[10],b)+'</row>';
+  });
+  const sheet='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+   +'<sheetPr><pageSetUpPr fitToPage="1"/></sheetPr><dimension ref="A1:K'+last+'"/>'
+   +'<sheetViews><sheetView workbookViewId="0" showGridLines="0"><pane ySplit="3" topLeftCell="A4" activePane="bottomLeft" state="frozen"/><selection pane="bottomLeft" activeCell="A4" sqref="A4"/></sheetView></sheetViews>'
+   +'<sheetFormatPr defaultRowHeight="18"/><cols>'+XW.map((w,i)=>'<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+w+'" customWidth="1"/>').join('')+'</cols>'
+   +'<sheetData>'+sd+'</sheetData>'
+   +(rows.length?'<autoFilter ref="A3:K'+last+'"/>':'')
+   +'<mergeCells count="2"><mergeCell ref="A1:K1"/><mergeCell ref="A2:K2"/></mergeCells>'
+   +'<pageMargins left="0.4" right="0.4" top="0.5" bottom="0.5" header="0.3" footer="0.3"/><pageSetup paperSize="9" orientation="landscape" fitToWidth="1" fitToHeight="0"/></worksheet>';
+  const wb='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="四象限工作表" sheetId="1" r:id="rId1"/></sheets>'
+   +'<definedNames>'+(rows.length?'<definedName name="_xlnm._FilterDatabase" localSheetId="0" hidden="1">\'四象限工作表\'!$A$3:$K$'+last+'</definedName>':'')+'<definedName name="_xlnm.Print_Titles" localSheetId="0">\'四象限工作表\'!$3:$3</definedName></definedNames></workbook>';
+  const files=[
+   {name:'[Content_Types].xml',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>'},
+   {name:'_rels/.rels',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'},
+   {name:'xl/workbook.xml',data:wb},
+   {name:'xl/_rels/workbook.xml.rels',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>'},
+   {name:'xl/worksheets/sheet1.xml',data:sheet},
+   {name:'xl/styles.xml',data:styles}];
+  return{data:zipStore(files),count:rows.length,sheet:sheet};
+}
+function b64(u8){let s='';for(let i=0;i<u8.length;i+=0x8000)s+=String.fromCharCode.apply(null,u8.subarray(i,i+0x8000));return btoa(s)}
 function setRange(r){
   const t=cur;let f=t,e=t;
   if(r==='week'){const w=(parse(t).getDay()+6)%7;f=addDays(t,-w);e=addDays(f,6)}
@@ -553,9 +678,9 @@ function setRange(r){
 document.querySelectorAll('[data-xr]').forEach(b=>b.onclick=()=>setRange(b.dataset.xr));
 $('mCsv').onclick=()=>{
   let f=$('xFrom').value,e=$('xTo').value;if(f&&e&&f>e){const s=f;f=e;e=s}
-  const r=buildCsv(f,e);
+  const r=buildXlsx(f,e);
   if(!r.count){alert('这段时间里没有工作记录。');return}
-  download('四象限工作表_'+(f||'开始')+'至'+(e||'现在')+'.csv',r.text,'text/csv;charset=utf-8');
+  download('四象限工作表_'+(f||'开始')+'至'+(e||'现在')+'.xlsx',r.data,'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 };
 $('fImport').onchange=e=>{
   const f=e.target.files[0];if(!f)return;
@@ -563,7 +688,7 @@ $('fImport').onchange=e=>{
   rd.onload=()=>{
     try{const o=JSON.parse(rd.result);if(!Array.isArray(o.tasks))throw new Error('格式不对');
       if(!confirm('导入会覆盖这台设备上的全部记录（共 '+o.tasks.length+' 项工作），确定吗？'))return;
-      S={tasks:o.tasks,recurs:o.recurs||[],gen:o.gen||{}};save();closeM('mMore');render();alert('导入完成。');
+      S={tasks:o.tasks,recurs:o.recurs||[],gen:o.gen||{},del:S.del||{},delr:S.delr||{}};save();closeM('mMore');render();alert('导入完成。');
     }catch(err){alert('导入失败：这不是本程序导出的备份文件。')}
     e.target.value='';
   };
@@ -611,7 +736,76 @@ function tick(){
   if(t!==lastToday){const wasToday=cur===lastToday;lastToday=t;if(wasToday)cur=t;render()}
   checkRemind();
 }
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)tick()});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){tick();if(CFG&&Date.now()-lastSync>15000)syncNow()}});
+window.addEventListener('online',()=>{if(CFG)syncNow()});
+
+/* ===== 多设备同步：GitHub 私有仓库里只存一份加密文件 ===== */
+const SYNCFILE='sixiangxian-data.enc';
+function ghHeaders(json){const h={Authorization:'Bearer '+CFG.token,Accept:'application/vnd.github+json'};if(json)h['Content-Type']='application/json';return h}
+function ghMsg(s){return s===401?'访问令牌无效或已过期':s===403?'访问令牌没有这个仓库的读写权限，或请求太频繁':s===404?'找不到仓库，请检查仓库名和令牌权限':'GitHub 返回错误 '+s}
+async function ghGet(){
+  const r=await fetch('https://api.github.com/repos/'+CFG.repo+'/contents/'+SYNCFILE+'?t='+Date.now(),{headers:ghHeaders(),cache:'no-store'});
+  if(r.status===404)return null;if(!r.ok)throw new Error(ghMsg(r.status));
+  const j=await r.json();return{sha:j.sha,text:TD.decode(b64u8((j.content||'').replace(/\s/g,'')))};
+}
+async function ghPut(text,sha){
+  const body={message:'四象限同步 '+new Date().toISOString(),content:b64(TE.encode(text))};if(sha)body.sha=sha;
+  const r=await fetch('https://api.github.com/repos/'+CFG.repo+'/contents/'+SYNCFILE,{method:'PUT',headers:ghHeaders(true),body:JSON.stringify(body)});
+  if(r.status===409||r.status===422)return'conflict';if(!r.ok)throw new Error(ghMsg(r.status));return'ok';
+}
+function setSync(msg,err){syncErr=err?msg:'';const el=$('syncSt');if(el){el.textContent=msg;el.style.color=err?'#FFB4AB':''}const i=$('sInfo');if(i)i.textContent=msg}
+function schedulePush(){clearTimeout(pushTimer);pushTimer=setTimeout(syncNow,2500)}
+async function syncNow(){
+  if(!CFG)return;if(syncing){dirty=true;return}
+  syncing=true;setSync('☁ 同步中…');
+  try{
+    for(let i=0;i<4;i++){
+      const rem=await ghGet();let ro=null,salt=null;
+      if(rem){
+        try{ro=await decryptObj(rem.text,CFG.pw);salt=JSON.parse(rem.text).salt}
+        catch(e){throw new Error('同步密码和其他设备的不一样，解不开云端数据')}
+      }
+      dirty=false;
+      if(ro){const m=mergeData(S,ro);if(norm(m)!==norm(S)){S=m;persist();snap();render()}}
+      if(ro&&norm(S)===norm(ro))break;
+      const enc=await encryptObj({tasks:S.tasks,recurs:S.recurs,gen:S.gen,del:S.del,delr:S.delr},CFG.pw,salt);
+      if(await ghPut(enc,rem&&rem.sha)==='ok')break;
+    }
+    lastSync=Date.now();setSync('☁ 已同步 '+hmOf(lastSync));
+  }catch(e){setSync('☁ 同步失败：'+(e.message||e),true)}
+  finally{syncing=false;if(dirty)schedulePush()}
+}
+setInterval(()=>{if(CFG&&!document.hidden&&Date.now()-lastSync>60000)syncNow()},20000);
+function saveCfg(c){
+  CFG=c;
+  if(NATIVE)nativePost({type:'saveCfg',data:c?JSON.stringify(c):''});
+  else try{c?localStorage.setItem('q4.sync',JSON.stringify(c)):localStorage.removeItem('q4.sync')}catch(e){}
+}
+function fillSync(){
+  $('sRepo').value=CFG?CFG.repo:'';$('sTok').value=CFG?CFG.token:'';$('sPw').value=CFG?CFG.pw:'';
+  $('sOff').style.display=CFG?'':'none';$('sNow').style.display=CFG?'':'none';
+  $('sInfo').textContent=CFG?(syncErr||(lastSync?'☁ 已同步 '+hmOf(lastSync):'☁ 已开启同步')):'还没开启同步。';
+}
+$('sSave').onclick=async()=>{
+  const repo=$('sRepo').value.trim().replace(/^https?:\/\/github\.com\//,'').replace(/\.git$/,'').replace(/\/$/,''),tok=$('sTok').value.trim(),pw=$('sPw').value;
+  if(!/^[\w.-]+\/[\w.-]+$/.test(repo)){alert('仓库请按“用户名/仓库名”填写，例如 hwtkkl/sixiangxian-data');return}
+  if(!tok){alert('请填写访问令牌');return}
+  if(pw.length<6){alert('同步密码至少 6 位');return}
+  $('sInfo').textContent='正在检查仓库…';
+  try{
+    const r=await fetch('https://api.github.com/repos/'+repo,{headers:{Authorization:'Bearer '+tok,Accept:'application/vnd.github+json'},cache:'no-store'});
+    if(!r.ok){$('sInfo').textContent='连接失败：'+ghMsg(r.status);return}
+    const j=await r.json();
+    if(!j.private){$('sInfo').textContent='这个仓库是公开的。为了安全，请换成私有仓库（Private）。';return}
+    if(j.permissions&&j.permissions.push===false){$('sInfo').textContent='这个令牌只能读、不能写，请给令牌加上“Contents：Read and write”权限。';return}
+  }catch(e){$('sInfo').textContent='连不上 GitHub，请检查网络：'+e.message;return}
+  saveCfg({repo:repo,token:tok,pw:pw});fillSync();lastSync=0;await syncNow();fillSync();
+};
+$('sNow').onclick=async()=>{await syncNow();fillSync()};
+$('sOff').onclick=()=>{
+  if(!confirm('停止同步后，这台设备上的记录保留，但不再和其他设备同步。令牌和同步密码会从这台设备上删掉。确定吗？'))return;
+  saveCfg(null);setSync('');fillSync();
+};
 
 if(location.protocol.indexOf('http')===0&&'serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{})}
 
@@ -760,13 +954,13 @@ if(TEST){
     ok(v2.length===2&&!v2[0].hm&&v2[1].q===1,'语音：“第一、第二”能拆开，“快一点”算作上一件紧急（实际 '+v2.map(x=>x.title+'|'+x.hm+'|'+x.q).join('，')+'）');
     const v3=parseVoice('下午两点，去医院拿报告');
     ok(v3.length===1&&v3[0].hm==='14:00'&&v3[0].title==='去医院拿报告','语音：时间单独一句，并到下一件事上');
-    const cv=buildCsv(y,t),cl=cv.text.slice(1).split('\r\n');
-    ok(cv.text.charCodeAt(0)===0xFEFF&&cl[0].indexOf('日期,星期,象限')===0,'表格：带 Excel 中文识别标记，表头正确');
-    ok(cl.some(l=>l.indexOf('已延续到')>0)&&cl.some(l=>l.indexOf('延续自')>0),'表格：延续关系写进状态和来源');
-    S.tasks.push({id:'Z',date:t,q:2,title:'报价单',note:'含税, 含运费',done:false,ct:9});
-    const cq=buildCsv(t,t).text;S.tasks=S.tasks.filter(x=>x.id!=='Z');
-    ok(cq.indexOf('"含税, 含运费"')>0&&cq.indexOf(',报价单,')>0,'表格：含逗号的备忘自动加引号');
-    ok(buildCsv(addDays(t,30),addDays(t,31)).count===0,'表格：日期范围筛选正确');
+    const xv=buildXlsx(y,t),xd=xv.data,xs=new TextDecoder().decode(xd);
+    ok(xd[0]===0x50&&xd[1]===0x4B&&xs.indexOf('xl/worksheets/sheet1.xml')>0&&xs.indexOf('xl/styles.xml')>0,'表格：生成标准 Excel 文件（.xlsx）');
+    ok(xv.sheet.indexOf('已延续到')>0&&xv.sheet.indexOf('延续自')>0&&xv.sheet.indexOf('<pane ySplit="3"')>0,'表格：延续关系写进状态和来源，表头冻结');
+    S.tasks.push({id:'Z',date:t,q:2,title:'报价单 <含税> & 运费',note:'含税, 含运费',done:false,ct:9});
+    const xz=buildXlsx(t,t);S.tasks=S.tasks.filter(x=>x.id!=='Z');
+    ok(xz.sheet.indexOf('报价单 &lt;含税&gt; &amp; 运费')>0&&xz.sheet.indexOf('含税, 含运费')>0,'表格：特殊符号正确转义');
+    ok(buildXlsx(addDays(t,30),addDays(t,31)).count===0,'表格：日期范围筛选正确');
     const fx={date:t,remind:'15:00',adv:30},fe=parse(t);fe.setHours(14,30,0,0);
     ok(fireAt(fx)===fe.getTime(),'提醒：提前 30 分钟，15:00 的事 14:30 响');
     const fy={date:t,remind:'09:00',adv:1440},fz=parse(addDays(t,-1));fz.setHours(9,0,0,0);
@@ -793,17 +987,50 @@ if(TEST){
     ub().querySelector('[data-a="remind"]').click();
     ok($('mRemind').classList.contains('on'),'按钮：点“提醒”打开提醒设置');closeM('mRemind');
     S.tasks=S.tasks.filter(x=>x.id!=='U1');
+    /* 同步合并逻辑 */
+    const keep=S;
+    S={tasks:[{id:'k1',date:t,q:1,title:'甲',done:false},{id:'k2',date:t,q:2,title:'乙',done:false}],recurs:[],gen:{}};snap();
+    S.tasks[0].title='甲（改）';S.tasks=S.tasks.filter(x=>x.id!=='k2');stamp();
+    ok(S.tasks[0].u>0&&S.del.k2>0,'同步：改过的记录打上修改时间，删掉的留删除标记');
+    const A={tasks:[{id:'m1',title:'旧',u:100},{id:'m2',title:'只在A',u:100},{id:'m3',title:'A要删',u:100}],recurs:[],gen:{x:1},del:{}};
+    const B={tasks:[{id:'m1',title:'新',u:200},{id:'m3',title:'A要删',u:100},{id:'m4',title:'只在B',u:150}],recurs:[],gen:{y:1},del:{m3:300}};
+    const M=mergeData(A,B),mt=id=>M.tasks.find(x=>x.id===id);
+    ok(mt('m1').title==='新'&&mt('m2')&&mt('m4')&&!mt('m3')&&M.gen.x&&M.gen.y,'同步：两边合并，新的覆盖旧的，各自新增的都保留，删除会同步');
+    ok(norm(mergeData(M,M))===norm(M),'同步：重复合并结果不变');
+    S={tasks:[{id:'cx',date:y,q:1,title:'跨天',done:false}],recurs:[],gen:{}};snap();carryOver();const c1=S.tasks.find(x=>x.origin).id;
+    S={tasks:[{id:'cx',date:y,q:1,title:'跨天',done:false}],recurs:[],gen:{}};snap();carryOver();
+    ok(c1===S.tasks.find(x=>x.origin).id,'同步：两台设备各自延续同一件事，不会变成两条');
+    S=keep;snap();
     S.tasks.push({id:'F',date:t,q:1,title:'下午三点前交测绘局备忘录',remind:'15:00',note:'先发客户确认，再盖章',done:false,ct:6},
       {id:'G',date:t,q:3,title:'回复渠道商报价',done:true,doneAt:Date.now(),ct:7},
       {id:'H',date:t,q:4,title:'整理桌面文件',done:false,ct:8});
     save();
   }catch(err){out.push('自检出错：'+err.message)}
   const b=$('selftest');b.style.display='block';b.textContent='自检结果\n'+out.join('\n');
+  (async()=>{
+    const ex=[];const ok2=(c,m)=>ex.push((c?'通过 ':'失败 ')+m);
+    try{
+      ok2(!!(window.crypto&&crypto.subtle),'加密：本环境支持加密（'+(window.isSecureContext?'安全环境':'非安全环境')+'）');
+      const data={tasks:[{id:'e1',title:'客户报价 12.8 万'}],recurs:[],gen:{}};
+      const enc=await encryptObj(data,'测试密码123');
+      ok2(enc.indexOf('客户')<0&&enc.indexOf('12.8')<0,'加密：加密后看不到原文');
+      ok2((await decryptObj(enc,'测试密码123')).tasks[0].title==='客户报价 12.8 万','加密：同一个密码能解开');
+      let bad=false;try{await decryptObj(enc,'错误密码')}catch(e){bad=true}
+      ok2(bad,'加密：密码不对解不开');
+      if(/net/.test(location.search)){
+        const r=await fetch('https://api.github.com/repos/hwtkkl/sixiangxian/contents/sw.js?t='+Date.now(),{headers:{Accept:'application/vnd.github+json'},cache:'no-store'});
+        ok2(r.status===200||r.status===403,'网络：能连上 GitHub 接口（状态 '+r.status+(r.status===403?'，未登录额度用完，正式同步带令牌不受影响':'')+'）');
+      }
+    }catch(err){ex.push('加密自检出错：'+err.message)}
+    b.textContent+='\n'+ex.join('\n');b.dataset.done='1';
+  })();
+  if(/xlsx/.test(location.search)){const p=document.createElement('pre');p.id='xout';p.style.display='none';p.textContent=b64(buildXlsx('',addDays(today(),1)).data);document.body.appendChild(p)}
   render();
   if(/voice/.test(location.search)){$('vText').value='上午九点开周会，下午三点半给客户送标书，这个很紧急。然后整理上周的报价单，明天上午十点给张总打电话，有空看看行业新闻';$('vParse').click();openM('mVoice')}
   if(/remind/.test(location.search)){const f=S.tasks.find(x=>x.id==='F');if(f){f.adv=30;f.ring='loop';save();render()}openRemind('F')}
 }else{
   render();setInterval(tick,20000);tick();
+  if(CFG){setSync('☁ 准备同步…');setTimeout(syncNow,600)}
 }
 </script>
 </body>

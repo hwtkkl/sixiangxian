@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="四象限">
+<meta name="theme-color" content="#1F3A5F">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>四象限工作台</title>
+<style>
+:root{--q1:#D93025;--q2:#1E6FD9;--q3:#E39400;--q4:#7A8594;--bg:#F4F6F9;--card:#fff;--line:#E3E7ED;--txt:#1F2933;--sub:#6B7685;--navy:#1F3A5F}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC",sans-serif;font-size:15px}
+body{padding:0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+header{position:sticky;top:0;z-index:5;background:var(--navy);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 14px 10px}
+.row1{display:flex;align-items:center;gap:8px}
+h1{font-size:17px;margin:0;flex:1;white-space:nowrap}
+.hbtn{background:rgba(255,255,255,.15);color:#fff;border:0;border-radius:8px;padding:7px 11px;font-size:14px;cursor:pointer;white-space:nowrap}
+.row2{display:flex;align-items:center;gap:6px;margin-top:9px}
+.nav{background:rgba(255,255,255,.15);color:#fff;border:0;border-radius:8px;width:38px;height:36px;font-size:20px;cursor:pointer;flex:none}
+.dlabel{flex:1;text-align:center;font-weight:600;font-size:16px;line-height:1.2}
+.dlabel small{display:block;font-weight:400;font-size:12px;opacity:.8}
+input[type=date].dpick{background:#fff;border:0;border-radius:8px;height:36px;padding:0 6px;font-size:14px;color:var(--txt);width:132px;flex:none}
+.stats{display:flex;align-items:center;gap:10px;font-size:13px;margin-top:9px}
+.bar{flex:1;height:6px;background:rgba(255,255,255,.2);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;background:#7BD88F;width:0;transition:width .3s}
+main{display:grid;grid-template-columns:1fr;gap:12px;padding:12px;max-width:1280px;margin:0 auto}
+@media(min-width:760px){main{grid-template-columns:1fr 1fr}}
+.quad{background:var(--card);border-radius:12px;border-top:5px solid var(--c);box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;flex-direction:column;min-height:230px}
+.qh{display:flex;align-items:baseline;gap:8px;padding:10px 14px 6px;flex-wrap:wrap}
+.qn{background:var(--c);color:#fff;border-radius:6px;font-weight:700;font-size:13px;padding:1px 7px}
+.qt{font-weight:700;color:var(--c);font-size:15px}
+.qs{color:var(--sub);font-size:12px}
+.qc{margin-left:auto;color:var(--sub);font-size:12px}
+ul{list-style:none;margin:0;padding:0 8px;flex:1}
+.task{display:flex;gap:10px;align-items:flex-start;padding:9px 6px;border-bottom:1px solid var(--line)}
+.task:last-child{border-bottom:0}
+.chk{flex:none;width:26px;height:26px;border-radius:50%;border:2px solid var(--c);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.chk svg{width:14px;height:14px;opacity:0}
+.task.done .chk{background:var(--c)}
+.task.done .chk svg{opacity:1}
+.tb{flex:1;min-width:0;cursor:pointer}
+.tt{word-break:break-word;line-height:1.45}
+.no{color:var(--sub);margin-right:4px}
+.task.done .tt{text-decoration:line-through;color:var(--sub)}
+.meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:3px}
+.tag{font-size:11px;border-radius:4px;padding:1px 6px;background:#F0F2F5;color:var(--sub)}
+.tag.rm{background:#FFF4E0;color:#A86400}
+.tag.cf{background:#FDECEC;color:#B3261E}
+.tag.rc{background:#E8F1FC;color:#1E5BB8}
+.nt{font-size:12.5px;color:var(--sub);margin-top:3px;white-space:pre-wrap;word-break:break-word}
+.empty{color:#A0A8B4;font-size:13px;padding:18px 8px;text-align:center}
+form.add{display:flex;gap:6px;padding:8px 10px 12px}
+form.add input{flex:1;min-width:0;border:1px solid var(--line);border-radius:8px;padding:9px 10px;font-size:16px;background:#FAFBFC}
+form.add button{border:0;border-radius:8px;background:var(--c);color:#fff;font-size:22px;width:44px;cursor:pointer;flex:none}
+.mask{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:flex-end;justify-content:center;z-index:20}
+.mask.on{display:flex}
+@media(min-width:760px){.mask{align-items:center}}
+.sheet{background:#fff;width:100%;max-width:520px;max-height:90vh;overflow:auto;border-radius:16px 16px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom))}
+@media(min-width:760px){.sheet{border-radius:16px}}
+.sheet h2{margin:0 0 12px;font-size:17px}
+.fld{margin-bottom:12px}
+.fld>label{display:block;font-size:13px;color:var(--sub);margin-bottom:5px}
+.fld input,.fld select,.fld textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 10px;font-size:16px;font-family:inherit;background:#FAFBFC;color:var(--txt)}
+.fld textarea{min-height:90px;resize:vertical}
+.qpick{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.qpick button{border:2px solid var(--line);background:#fff;border-radius:8px;padding:8px;font-size:13px;cursor:pointer;text-align:left;color:var(--txt)}
+.qpick button.on{border-color:var(--c);color:var(--c);font-weight:600}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.btn{border:0;border-radius:8px;padding:10px 14px;font-size:15px;cursor:pointer;background:#EEF1F5;color:var(--txt)}
+.btn.pri{background:var(--navy);color:#fff;flex:1}
+.btn.del{background:#FDECEC;color:#B3261E}
+.col{flex-direction:column}
+.col .btn{text-align:left}
+.list .it{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid var(--line)}
+.list .it.click{cursor:pointer}
+.list .it .grow{flex:1;min-width:0}
+.list .it .p{width:70px;height:6px;background:#EEF1F5;border-radius:3px;overflow:hidden;flex:none}
+.list .it .p i{display:block;height:100%;background:#2E9E5B}
+.list .sub{font-size:12px;color:var(--sub)}
+.hint{font-size:12.5px;color:var(--sub);line-height:1.7}
+.dows{display:flex;gap:4px;flex-wrap:wrap}
+.dows label{display:flex;align-items:center;gap:3px;font-size:13px;border:1px solid var(--line);border-radius:6px;padding:4px 7px}
+.dows input{width:auto}
+#toast{position:fixed;left:50%;top:calc(12px + env(safe-area-inset-top));transform:translateX(-50%);z-index:30;display:none;background:#fff;border-left:5px solid var(--q1);box-shadow:0 6px 24px rgba(0,0,0,.2);border-radius:10px;padding:12px 14px;width:420px;max-width:92vw}
+#toast.on{display:block}
+#toast b{display:block;margin-bottom:4px}
+#selftest{display:none;background:#FFFBE6;border:1px solid #E0C36A;margin:12px;padding:10px;border-radius:8px;font-size:13px;white-space:pre-wrap}
+.vrow{display:grid;grid-template-columns:24px 1fr;gap:6px 8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.vrow .vf{grid-column:2;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.vrow .vck{width:20px;height:20px}
+.vrow .vt{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px;font-size:16px;font-family:inherit}
+.vrow select,.vrow input[type=time]{border:1px solid var(--line);border-radius:8px;padding:6px;font-size:14px;background:#FAFBFC;color:var(--txt)}
+.mic.on{background:#D93025;color:#fff}
+kbd{display:inline-block;border:1px solid #CBD2DC;border-bottom-width:2px;border-radius:4px;padding:0 5px;font-size:12px;font-family:inherit;background:#fff;color:var(--txt);line-height:1.5}
+@media(max-width:480px){h1{font-size:15px}.hbtn{padding:7px 9px}}
+@media print{*{-webkit-print-color-adjust:exact;print-color-adjust:exact}header{position:static}}
+</style>
+</head>
+<body>
+<div id="selftest"></div>
+<header>
+  <div class="row1">
+    <h1>四象限工作台</h1>
+    <button class="hbtn" id="bVoice">🎤 语音</button>
+    <button class="hbtn" id="bRecur">固定</button>
+    <button class="hbtn" id="bHist">历史</button>
+    <button class="hbtn" id="bMore">更多</button>
+  </div>
+  <div class="row2">
+    <button class="nav" id="bPrev" aria-label="前一天">‹</button>
+    <div class="dlabel" id="dlabel"></div>
+    <button class="nav" id="bNext" aria-label="后一天">›</button>
+    <input type="date" class="dpick" id="dpick" aria-label="选择日期">
+    <button class="hbtn" id="bToday">今天</button>
+  </div>
+  <div class="stats"><span id="stxt"></span><div class="bar"><i id="sbar"></i></div></div>
+</header>
+<main id="grid"></main>
+
+<div class="mask" id="mEdit"><div class="sheet">
+  <h2>编辑工作</h2>
+  <div class="fld"><label>工作内容</label><input id="eName"></div>
+  <div class="fld"><label>所属象限</label><div class="qpick" id="eQ"></div></div>
+  <div class="fld"><label>日期</label><input type="date" id="eDate"></div>
+  <div class="fld"><label>提醒时间（可不填）</label><input type="time" id="eTime"></div>
+  <div class="fld"><label>备忘</label><textarea id="eNote" placeholder="进展、联系人、注意事项……"></textarea></div>
+  <div class="acts">
+    <button class="btn pri" id="eSave">保存</button>
+    <button class="btn" id="eCal">加入系统日历</button>
+    <button class="btn del" id="eDel">删除</button>
+    <button class="btn" data-close>取消</button>
+  </div>
+  <p class="hint" id="eInfo"></p>
+</div></div>
+
+<div class="mask" id="mRecur"><div class="sheet">
+  <h2>固定工作</h2>
+  <p class="hint">每天、工作日或每周固定要做的工作，到了当天会自动出现在对应象限。固定工作没做完不会延续到第二天，第二天会重新生成一条。</p>
+  <div class="list" id="rList"></div>
+  <h2 style="margin-top:16px">新增固定工作</h2>
+  <div class="fld"><label>工作内容</label><input id="rName" placeholder="例如：查看客户邮件"></div>
+  <div class="fld"><label>所属象限</label><div class="qpick" id="rQ"></div></div>
+  <div class="fld"><label>重复</label>
+    <select id="rRep"><option value="daily">每天</option><option value="weekday">工作日（周一至周五）</option><option value="weekly">每周指定几天</option></select>
+  </div>
+  <div class="fld" id="rDowsWrap" style="display:none"><label>每周哪几天</label><div class="dows" id="rDows"></div></div>
+  <div class="fld"><label>提醒时间（可不填）</label><input type="time" id="rTime"></div>
+  <div class="acts"><button class="btn pri" id="rAdd">添加</button><button class="btn" data-close>关闭</button></div>
+</div></div>
+
+<div class="mask" id="mHist"><div class="sheet">
+  <h2>历史记录</h2>
+  <p class="hint">点任意一天，可以查看当天的工作。</p>
+  <div class="list" id="hList"></div>
+  <div class="acts"><button class="btn" data-close>关闭</button></div>
+</div></div>
+
+<div class="mask" id="mMore"><div class="sheet">
+  <h2>更多</h2>
+  <div class="acts col">
+    <button class="btn" id="mNotify">开启系统通知</button>
+    <button class="btn" id="mExport">导出备份（换设备、防丢失）</button>
+    <button class="btn" id="mImport">导入备份</button>
+    <input type="file" id="fImport" accept=".json,application/json" hidden>
+  </div>
+  <h2 style="margin-top:16px">使用说明</h2>
+  <div class="hint">
+    1. 在象限下方输入工作，按回车或“+”添加。点左边圆圈表示完成，再点一次取消。<br>
+    2. 点工作内容可以修改，写备忘、改象限、改日期、设提醒、删除。<br>
+    3. 用顶部的 ‹ › 或日期框翻看任意一天；“历史”里能看到每天的完成情况。<br>
+    4. 以前没做完的工作，会自动复制一份到今天，并标上“延续自某日”。原来那天的记录保留不动。<br>
+    5. 提醒：网页版只在程序打开时弹出，想在程序关着时也收到，请在工作里点“加入系统日历”。Mac 客户端由系统通知中心提醒，程序关着也会按时提醒。<br>
+    6. 数据只保存在当前设备的浏览器里，不上传任何地方。不同设备之间不互通，可以用“导出备份”和“导入备份”搬数据。清除浏览器数据会把记录一起清掉，建议定期导出备份。<br>
+    7. 语音助手：点“🎤 语音”，把今天的事一口气说完，再点“识别成工作清单”。说“这个很紧急”“这个很重要”会算到上一件事上。
+  </div>
+  <h2 style="margin-top:16px">快捷键（电脑，或接了键盘的 iPad）</h2>
+  <div class="hint">
+    <kbd>1</kbd>–<kbd>4</kbd> 在对应象限添加工作<br>
+    <kbd>V</kbd> 或 <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>K</kbd> 打开语音助手；助手里 <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>回车</kbd> 直接识别<br>
+    <kbd>←</kbd> <kbd>→</kbd> 前一天、后一天；<kbd>T</kbd> 回到今天；<kbd>H</kbd> 历史<br>
+    <kbd>Esc</kbd> 关闭弹窗<br>
+    Mac 客户端：在任何界面按 <kbd>⌃ control</kbd>+<kbd>⌥ option</kbd>+<kbd>空格</kbd> 唤出或隐藏；关掉窗口程序仍在后台，提醒照常
+  </div>
+  <div class="acts"><button class="btn" data-close>关闭</button></div>
+</div></div>
+
+<div class="mask" id="mVoice"><div class="sheet">
+  <h2>语音助手</h2>
+  <p class="hint">把要做的事说出来或打出来，助手会拆成一条条工作，认出时间，并按关键词分好象限。加入前可以逐条修改。<br>例：上午九点开周会，下午三点半给客户送标书，这个很紧急；然后整理上周的报价单；明天上午十点给张总打电话；有空看看行业新闻。</p>
+  <div class="fld"><textarea id="vText" placeholder="点下面的“开始说话”，或用键盘上的话筒按钮说话，也可以直接打字"></textarea></div>
+  <div class="acts">
+    <button class="btn mic" id="vMic">🎤 开始说话</button>
+    <button class="btn pri" id="vParse">识别成工作清单</button>
+    <button class="btn" id="vClear">清空</button>
+  </div>
+  <p class="hint" id="vMicHint"></p>
+  <div id="vPreview"></div>
+  <div class="acts" id="vAddWrap" style="display:none"><button class="btn pri" id="vAdd">全部加入</button><button class="btn" data-close>关闭</button></div>
+</div></div>
+
+<div id="toast"><b>⏰ 工作提醒</b><div id="tBody"></div><div class="acts"><button class="btn pri" id="tOk">知道了</button></div></div>
+
+<script>
+const Q={1:{n:'重要且紧急',s:'马上做',c:'var(--q1)'},2:{n:'重要不紧急',s:'计划做',c:'var(--q2)'},3:{n:'紧急不重要',s:'尽快处理或交给别人',c:'var(--q3)'},4:{n:'不重要不紧急',s:'少做或不做',c:'var(--q4)'}};
+const WK='日一二三四五六';
+const TEST=/selftest/.test(location.search);
+const KEY=TEST?'q4.selftest':'q4.v1';
+const $=id=>document.getElementById(id);
+const NATIVE=!!(window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.q4);
+function nativePost(o){try{window.webkit.messageHandlers.q4.postMessage(o)}catch(e){}}
+if(TEST){try{localStorage.removeItem(KEY)}catch(e){}}
+window.onerror=function(m,s,l){const b=$('selftest');b.style.display='block';b.textContent+='\n程序错误：'+m+'（第'+l+'行）';};
+
+function pad(n){return String(n).padStart(2,'0')}
+function fmt(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function parse(s){const a=s.split('-').map(Number);return new Date(a[0],a[1]-1,a[2])}
+function today(){return fmt(new Date())}
+function addDays(s,n){const d=parse(s);d.setDate(d.getDate()+n);return fmt(d)}
+function nowHM(){const d=new Date();return pad(d.getHours())+':'+pad(d.getMinutes())}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function md(s){const d=parse(s);return (d.getMonth()+1)+'月'+d.getDate()+'日'}
+function short(s){const d=parse(s);return (d.getMonth()+1)+'-'+d.getDate()}
+function load(){try{const o=(NATIVE&&window.__Q4DATA)?window.__Q4DATA:JSON.parse(localStorage.getItem(KEY)||'{}');return{tasks:o.tasks||[],recurs:o.recurs||[],gen:o.gen||{}}}catch(e){return{tasks:[],recurs:[],gen:{}}}}
+function save(){const s=JSON.stringify(S);try{localStorage.setItem(KEY,s)}catch(e){if(!NATIVE)alert('保存失败：'+e.message)}if(NATIVE)nativePost({type:'save',data:s})}
+
+let S=load();
+let cur=today(),lastToday=today(),editId=null,eQv=1,rQv=1;
+
+/* 没做完的工作自动延续到今天：原记录保留，并标记已延续；固定工作不延续 */
+function carryOver(){
+  const t=today();let n=0;
+  S.tasks.filter(x=>x.date<t&&!x.done&&!x.carriedTo&&!x.recurId).forEach(x=>{
+    S.tasks.push({id:uid(),date:t,q:x.q,title:x.title,note:x.note||'',remind:x.remind||'',done:false,origin:x.origin||x.date,ct:Date.now()});
+    x.carriedTo=t;n++;
+  });
+  if(n)save();return n;
+}
+function matchRecur(r,d){const w=parse(d).getDay();if(r.rep==='daily')return true;if(r.rep==='weekday')return w>=1&&w<=5;return(r.dows||[]).includes(w)}
+/* 固定工作：只为今天及以后生成，每天每项只生成一次 */
+function genRecur(d){
+  if(d<today())return 0;let n=0;
+  S.recurs.forEach(r=>{const k=r.id+'|'+d;
+    if(r.active!==false&&d>=r.start&&!S.gen[k]&&matchRecur(r,d)){
+      S.tasks.push({id:uid(),date:d,q:r.q,title:r.title,note:'',remind:r.remind||'',done:false,recurId:r.id,ct:Date.now()});
+      S.gen[k]=1;n++;
+    }});
+  if(n)save();return n;
+}
+function dayTasks(d){return S.tasks.filter(x=>x.date===d)}
+function sortTasks(a,b){if(a.done!==b.done)return a.done?1:-1;const ra=a.remind||'99:99',rb=b.remind||'99:99';if(ra!==rb)return ra<rb?-1:1;return(a.ct||0)-(b.ct||0)}
+
+const CHECK='<svg viewBox="0 0 16 16"><path d="M3 8.5l3.2 3L13 4.5" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function itemHTML(x,i){
+  const tags=[];
+  if(x.remind)tags.push('<span class="tag rm">🔔 '+esc(x.remind)+'</span>');
+  if(x.origin)tags.push('<span class="tag cf">延续自 '+short(x.origin)+'</span>');
+  if(x.recurId)tags.push('<span class="tag rc">固定</span>');
+  if(x.carriedTo&&!x.done)tags.push('<span class="tag">已延续到 '+short(x.carriedTo)+'</span>');
+  return '<li class="task'+(x.done?' done':'')+'" data-id="'+x.id+'"><button class="chk" aria-label="完成">'+CHECK+'</button><div class="tb"><div class="tt"><span class="no">'+(i+1)+'.</span>'+esc(x.title)+'</div>'+(tags.length?'<div class="meta">'+tags.join('')+'</div>':'')+(x.note?'<div class="nt">'+esc(x.note)+'</div>':'')+'</div></li>';
+}
+function render(){
+  carryOver();genRecur(cur);
+  const t=today(),d=parse(cur);
+  const rel=cur===t?'今天':cur===addDays(t,-1)?'昨天':cur===addDays(t,1)?'明天':cur;
+  $('dlabel').innerHTML=md(cur)+' 周'+WK[d.getDay()]+'<small>'+rel+'</small>';
+  $('dpick').value=cur;
+  const all=dayTasks(cur),done=all.filter(x=>x.done).length;
+  $('stxt').textContent='共 '+all.length+' 项 · 已完成 '+done+' · 未完成 '+(all.length-done);
+  $('sbar').style.width=(all.length?done/all.length*100:0)+'%';
+  $('grid').innerHTML=[1,2,3,4].map(q=>{
+    const ls=all.filter(x=>x.q===q).sort(sortTasks),dn=ls.filter(x=>x.done).length;
+    return '<section class="quad" style="--c:'+Q[q].c+'"><div class="qh"><span class="qn">'+q+'</span><span class="qt">'+Q[q].n+'</span><span class="qs">'+Q[q].s+'</span><span class="qc">'+dn+'/'+ls.length+'</span></div><ul>'+(ls.length?ls.map(itemHTML).join(''):'<li class="empty">暂无工作</li>')+'</ul><form class="add" data-q="'+q+'"><input placeholder="添加工作，回车确认" enterkeyhint="done" aria-label="添加到第'+q+'象限"><button type="submit" aria-label="添加">+</button></form></section>';
+  }).join('');
+}
+
+/* 象限区域：完成、编辑、添加 */
+$('grid').addEventListener('click',e=>{
+  const li=e.target.closest('.task');if(!li)return;
+  const x=S.tasks.find(t=>t.id===li.dataset.id);if(!x)return;
+  if(e.target.closest('.chk')){x.done=!x.done;x.doneAt=x.done?Date.now():null;save();render();}
+  else if(e.target.closest('.tb'))openEdit(x.id);
+});
+$('grid').addEventListener('submit',e=>{
+  e.preventDefault();const f=e.target,q=+f.dataset.q,inp=f.querySelector('input'),v=inp.value.trim();
+  if(!v)return;
+  S.tasks.push({id:uid(),date:cur,q:q,title:v,note:'',remind:'',done:false,ct:Date.now()});
+  save();render();
+  const ni=document.querySelector('form.add[data-q="'+q+'"] input');if(ni)ni.focus();
+});
+
+/* 日期切换 */
+$('bPrev').onclick=()=>{cur=addDays(cur,-1);render()};
+$('bNext').onclick=()=>{cur=addDays(cur,1);render()};
+$('bToday').onclick=()=>{cur=today();render()};
+$('dpick').onchange=e=>{if(e.target.value){cur=e.target.value;render()}};
+
+/* 弹窗 */
+function openM(id){$(id).classList.add('on')}
+function closeM(id){$(id).classList.remove('on')}
+document.querySelectorAll('.mask').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m||e.target.closest('[data-close]'))m.classList.remove('on')})});
+function qpick(el,val,set){
+  el.innerHTML=[1,2,3,4].map(q=>'<button type="button" style="--c:'+Q[q].c+'" data-q="'+q+'" class="'+(q===val?'on':'')+'">'+q+' '+Q[q].n+'</button>').join('');
+  el.onclick=e=>{const b=e.target.closest('button');if(!b)return;set(+b.dataset.q);qpick(el,+b.dataset.q,set)};
+}
+
+/* 编辑工作 */
+function openEdit(id){
+  const x=S.tasks.find(t=>t.id===id);if(!x)return;editId=id;eQv=x.q;
+  $('eName').value=x.title;$('eDate').value=x.date;$('eTime').value=x.remind||'';$('eNote').value=x.note||'';
+  qpick($('eQ'),eQv,v=>eQv=v);
+  const info=[];
+  if(x.origin)info.push('这项工作最早写在 '+md(x.origin)+'，没做完，自动延续过来。');
+  if(x.carriedTo)info.push('当天没做完，已复制一份到 '+md(x.carriedTo)+'。');
+  if(x.recurId)info.push('这是一项固定工作。');
+  if(x.done&&x.doneAt){const d=new Date(x.doneAt);info.push('完成时间：'+fmt(d)+' '+pad(d.getHours())+':'+pad(d.getMinutes()));}
+  $('eInfo').textContent=info.join(' ');
+  openM('mEdit');
+}
+$('eSave').onclick=()=>{
+  const x=S.tasks.find(t=>t.id===editId);if(!x)return;
+  const v=$('eName').value.trim();if(!v){alert('请填写工作内容');return}
+  const nt=$('eTime').value||'';
+  if(nt!==(x.remind||'')||$('eDate').value!==x.date)x.notified=false;
+  x.title=v;x.q=eQv;x.note=$('eNote').value.trim();x.remind=nt;if($('eDate').value)x.date=$('eDate').value;
+  save();closeM('mEdit');render();
+};
+$('eDel').onclick=()=>{
+  if(!confirm('确定删除这项工作吗？'))return;
+  S.tasks=S.tasks.filter(t=>t.id!==editId);save();closeM('mEdit');render();
+};
+function icsEsc(s){return String(s||'').replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/,/g,'\\,').replace(/;/g,'\\;')}
+function icsText(date,time,title,note,id){
+  const st=date.replace(/-/g,'')+'T'+time.replace(':','')+'00';
+  const now=new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d+/,'');
+  return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//SiXiangXian//CN','CALSCALE:GREGORIAN','BEGIN:VEVENT','UID:'+id+'@sixiangxian','DTSTAMP:'+now,'DTSTART:'+st,'DURATION:PT15M','SUMMARY:'+icsEsc(title),'DESCRIPTION:'+icsEsc(note),'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+icsEsc(title),'TRIGGER:-PT0M','END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n');
+}
+function download(name,text,type){
+  if(NATIVE){nativePost({type:'file',name:name,text:text,open:/\.ics$/.test(name)});return}
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:type}));a.download=name;
+  document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);
+}
+$('eCal').onclick=()=>{
+  const t=$('eTime').value,d=$('eDate').value,n=$('eName').value.trim();
+  if(!t){alert('请先填写提醒时间');return}
+  download('提醒_'+d+'_'+t.replace(':','')+'.ics',icsText(d,t,n,$('eNote').value,editId+'-'+d+t),'text/calendar');
+};
+
+/* 固定工作 */
+function repText(r){if(r.rep==='daily')return'每天';if(r.rep==='weekday')return'工作日';return'每周'+(r.dows||[]).slice().sort().map(w=>WK[w]).join('、')}
+function renderRecur(){
+  $('rList').innerHTML=S.recurs.length?S.recurs.map(r=>'<div class="it"><div class="grow"><div>'+esc(r.title)+'</div><div class="sub">第'+r.q+'象限 · '+repText(r)+(r.remind?' · 🔔 '+esc(r.remind):'')+'</div></div><button class="btn del" data-rid="'+r.id+'">删除</button></div>').join(''):'<p class="hint">还没有固定工作。</p>';
+}
+$('rList').onclick=e=>{
+  const b=e.target.closest('[data-rid]');if(!b)return;
+  if(!confirm('删除这项固定工作吗？今天及以前的记录会保留，以后的不再生成。'))return;
+  const id=b.dataset.rid,t=today();
+  S.recurs=S.recurs.filter(r=>r.id!==id);
+  S.tasks=S.tasks.filter(x=>!(x.recurId===id&&x.date>t&&!x.done));
+  save();renderRecur();render();
+};
+$('rDows').innerHTML=[1,2,3,4,5,6,0].map(w=>'<label><input type="checkbox" value="'+w+'">周'+WK[w]+'</label>').join('');
+$('rRep').onchange=()=>{$('rDowsWrap').style.display=$('rRep').value==='weekly'?'block':'none'};
+$('rAdd').onclick=()=>{
+  const n=$('rName').value.trim();if(!n){alert('请填写工作内容');return}
+  const rep=$('rRep').value,dows=[...$('rDows').querySelectorAll('input:checked')].map(i=>+i.value);
+  if(rep==='weekly'&&!dows.length){alert('请选择每周哪几天');return}
+  S.recurs.push({id:uid(),title:n,q:rQv,rep:rep,dows:dows,remind:$('rTime').value||'',start:today(),active:true});
+  save();$('rName').value='';$('rTime').value='';renderRecur();render();
+};
+$('bRecur').onclick=()=>{rQv=2;qpick($('rQ'),rQv,v=>rQv=v);renderRecur();openM('mRecur')};
+
+/* 历史 */
+$('bHist').onclick=()=>{
+  const m={};S.tasks.forEach(x=>{(m[x.date]=m[x.date]||{a:0,d:0}).a++;if(x.done)m[x.date].d++});
+  const ds=Object.keys(m).sort().reverse();
+  $('hList').innerHTML=ds.length?ds.map(d=>'<div class="it click" data-d="'+d+'"><div class="grow">'+md(d)+' 周'+WK[parse(d).getDay()]+'<div class="sub">'+d+'</div></div><span class="sub">完成 '+m[d].d+'/'+m[d].a+'</span><div class="p"><i style="width:'+(m[d].d/m[d].a*100)+'%"></i></div></div>').join(''):'<p class="hint">还没有记录。</p>';
+  openM('mHist');
+};
+$('hList').onclick=e=>{const it=e.target.closest('[data-d]');if(!it)return;cur=it.dataset.d;closeM('mHist');render()};
+
+/* 更多：通知、备份 */
+$('bMore').onclick=()=>openM('mMore');
+$('mNotify').onclick=()=>{
+  if(NATIVE){nativePost({type:'askNotify'});alert('Mac 客户端的提醒由系统通知中心负责，程序关着也会按时提醒。如果没收到，请到“系统设置 → 通知 → 四象限工作台”里打开允许通知。');return}
+  if(!('Notification' in window)){alert('当前浏览器不支持系统通知。程序打开时仍会在页面顶部弹出提醒。iPad 和 iPhone 需要先把程序“添加到主屏幕”，再从主屏幕打开，才能开启通知。');return}
+  Notification.requestPermission().then(p=>alert(p==='granted'?'系统通知已开启。':'没有开启。可以在浏览器设置里允许本页面发送通知。'));
+};
+$('mExport').onclick=()=>download('四象限备份_'+today()+'.json',JSON.stringify({app:'sixiangxian',version:1,exportedAt:new Date().toISOString(),tasks:S.tasks,recurs:S.recurs,gen:S.gen},null,1),'application/json');
+$('mImport').onclick=()=>$('fImport').click();
+$('fImport').onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+    try{const o=JSON.parse(rd.result);if(!Array.isArray(o.tasks))throw new Error('格式不对');
+      if(!confirm('导入会覆盖这台设备上的全部记录（共 '+o.tasks.length+' 项工作），确定吗？'))return;
+      S={tasks:o.tasks,recurs:o.recurs||[],gen:o.gen||{}};save();closeM('mMore');render();alert('导入完成。');
+    }catch(err){alert('导入失败：这不是本程序导出的备份文件。')}
+    e.target.value='';
+  };
+  rd.readAsText(f);
+};
+
+/* 提醒：程序打开期间每 20 秒检查一次 */
+function beep(){try{const c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.frequency.value=880;o.connect(g);g.connect(c.destination);g.gain.setValueAtTime(.2,c.currentTime);o.start();o.stop(c.currentTime+.4)}catch(e){}}
+async function sysNotify(body){
+  if(NATIVE)return;
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  try{
+    if('serviceWorker' in navigator&&navigator.serviceWorker.controller){const r=await navigator.serviceWorker.ready;await r.showNotification('四象限工作提醒',{body:body});return}
+    new Notification('四象限工作提醒',{body:body});
+  }catch(e){}
+}
+function checkRemind(){
+  const t=today(),hm=nowHM();
+  const due=S.tasks.filter(x=>x.date===t&&x.remind&&!x.done&&!x.notified&&x.remind<=hm);
+  if(!due.length)return;
+  due.forEach(x=>x.notified=true);save();
+  const body=due.map(x=>x.remind+'　'+x.title).join('\n');
+  $('tBody').innerHTML=due.map(x=>'<div>'+esc(x.remind)+'　'+esc(x.title)+'</div>').join('');
+  $('toast').classList.add('on');beep();if(navigator.vibrate)navigator.vibrate([200,100,200]);
+  sysNotify(body);
+}
+$('tOk').onclick=()=>$('toast').classList.remove('on');
+function tick(){
+  const t=today();
+  if(t!==lastToday){const wasToday=cur===lastToday;lastToday=t;if(wasToday)cur=t;render()}
+  checkRemind();
+}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)tick()});
+
+if(location.protocol.indexOf('http')===0&&'serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+
+/* ===== 语音助手：把一段话拆成工作，识别时间、日期和象限（全部在本机计算） ===== */
+const CN={'零':0,'〇':0,'一':1,'二':2,'两':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9};
+function cn2n(s){if(/^\d+$/.test(s))return +s;if(s.indexOf('十')>=0){const p=s.split('十');const a=p[0]?CN[p[0]]:1,b=p[1]?CN[p[1]]:0;return a*10+b}return CN[s]!==undefined?CN[s]:NaN}
+const TRE=/(凌晨|早上|早晨|上午|中午|下午|傍晚|晚上|今晚)?\s*(\d{1,2}|[一二两三四五六七八九十]{1,3})\s*(?:点钟|点|时|:|：)\s*(半|一刻|三刻|\d{1,2}|[一二三四五六七八九十]{1,3})?\s*分?/g;
+function findTimes(s){
+  const res=[];let m;TRE.lastIndex=0;
+  while((m=TRE.exec(s))){
+    if(m.index>0&&s[m.index-1]==='第')continue;
+    const p=m[1]||'';
+    if(!p&&!m[3]&&(m[2]==='一'||m[2]==='两'))continue;   /* “快一点”“两点意见”这类不当时间 */
+    let h=cn2n(m[2]),mi=0;const mm=m[3];
+    if(mm==='半')mi=30;else if(mm==='一刻')mi=15;else if(mm==='三刻')mi=45;else if(mm)mi=cn2n(mm);
+    if(/下午|傍晚|晚上|今晚/.test(p)&&h<12)h+=12;else if(p==='中午'&&h<11)h+=12;else if(!p&&h>=1&&h<=6)h+=12;
+    if(isNaN(h)||isNaN(mi)||h>23||mi>59)continue;
+    res.push({i:m.index,len:m[0].length,hm:pad(h)+':'+pad(mi)});
+  }
+  return res;
+}
+const V_INTRO=/^(?:我|我们)?(?:今天|明天|今日)?(?:要|需要|得|有|一共有|主要有)?(?:做|办|处理)?[一二三四五六七八九十两几\d]+(?:件|个|项)(?:事|事情|工作|任务)?$/;
+const V_MOD=/^(?:这个|这件事|这事|此事|这项)?(?:很|非常|比较|特别|挺|也|有点)?(?:紧急|急|着急|重要|关键)(?:的)?(?:啊|呀|哦|了)?$/;
+const V_MOD2=/^(?:要|得|这个)?(?:快一点|快点|抓紧|尽快|赶紧|抓紧时间)(?:啊|呀|哦|了)?$/;
+const V_URG=/紧急|马上|立刻|立即|尽快|赶紧|赶快|必须|今天之内|截止|加急|很急|着急|催/;
+const V_IMP=/重要|关键|领导|老板|客户|合同|投标|标书|汇报|签约|回款|考核|质疑|审批|方案/;
+const V_LOW=/有空|顺便|不急|随便|闲|刷|新闻|逛/;
+const V_DEL=/交给|转给|让[^，。]{1,6}去|安排[^，。]{1,6}去|叫[^，。]{1,6}去/;
+const V_FILL=/^(?:[，,、\s]|今天|今日|今晚|明天|后天|我们|我|要|得|需要|还要|还得|先|就是|就|呢|也|还)+/;
+function parseVoice(text){
+  let t=String(text||'').replace(/\r/g,'');
+  t=t.replace(/(然后|还有就是|还有|另外|接着|再就是|最后|首先|其次|第[一二三四五六七八九十\d]+(?:点|个|件|项|是|条)?|\d{1,2}、)/g,'\n');
+  const segs=[];
+  t.split(/[。！？!?；;\n，,]+/).map(s=>s.trim()).filter(Boolean).forEach(s=>{
+    const ts=findTimes(s);if(ts.length<2){segs.push(s);return}
+    let last=0;ts.slice(1).forEach(x=>{segs.push(s.slice(last,x.i));last=x.i});segs.push(s.slice(last));
+  });
+  const items=[];let pend=null;
+  segs.forEach(raw=>{
+    const s=raw.trim(),flat=s.replace(/\s/g,'');if(!s)return;
+    if(V_INTRO.test(flat))return;
+    if(V_MOD.test(flat)&&items.length){const p=items[items.length-1];if(/急/.test(flat))p.urg=true;if(/重要|关键/.test(flat))p.imp=true;return}
+    if(V_MOD2.test(flat)){if(items.length)items[items.length-1].urg=true;return}
+    let off=null;if(/后天/.test(s))off=2;else if(/明天/.test(s))off=1;else if(/今天|今晚/.test(s))off=0;
+    const ts=findTimes(s);let hm=ts.length?ts[0].hm:'';
+    let title=ts.length?s.slice(0,ts[0].i)+s.slice(ts[0].i+ts[0].len):s;
+    title=title.replace(/后天|明天|今天|今晚|今日/g,'').replace(V_FILL,'').replace(/[，,。\s]*(吧|啊|呀|哦|呢)?$/,'').trim();
+    if(title.length<2){pend={hm:hm||(pend?pend.hm:''),off:off!==null?off:(pend?pend.off:null)};return}
+    if(pend){if(!hm)hm=pend.hm;if(off===null)off=pend.off;pend=null}
+    items.push({title:title,hm:hm,off:off||0,urg:V_URG.test(s),imp:V_IMP.test(s),low:V_LOW.test(s),del:V_DEL.test(s)});
+  });
+  return items.map(x=>{
+    const urg=x.urg||(!!x.hm&&x.off===0);
+    const imp=x.imp||(!x.low&&!x.del);
+    const q=urg&&imp?1:imp?2:urg?3:4;
+    return{title:x.title,hm:x.hm,off:x.off,q:q};
+  });
+}
+let VP=[];
+function dayName(d){return d===today()?'今天':d===addDays(today(),1)?'明天':md(d)}
+function showPreview(){
+  $('vPreview').innerHTML=VP.length?'<h2 style="margin-top:14px">识别结果（'+VP.length+' 项，可修改）</h2>'+VP.map((x,i)=>'<div class="vrow" data-i="'+i+'"><input type="checkbox" class="vck" checked aria-label="加入"><input type="text" class="vt" value="'+esc(x.title)+'"><div class="vf"><select class="vq">'+[1,2,3,4].map(q=>'<option value="'+q+'"'+(q===x.q?' selected':'')+'>'+q+' '+Q[q].n+'</option>').join('')+'</select><input type="time" class="vh" value="'+x.hm+'"><span class="tag">'+dayName(addDays(cur,x.off))+'</span></div></div>').join(''):'<p class="hint">没有识别出工作，换个说法再试试。</p>';
+  $('vAddWrap').style.display=VP.length?'flex':'none';
+}
+$('vParse').onclick=()=>{if(recOn&&rec)rec.stop();VP=parseVoice($('vText').value);showPreview()};
+$('vClear').onclick=()=>{$('vText').value='';VP=[];$('vPreview').innerHTML='';$('vAddWrap').style.display='none'};
+$('vText').addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){e.preventDefault();$('vParse').click()}});
+$('vAdd').onclick=()=>{
+  let n=0;
+  document.querySelectorAll('#vPreview .vrow').forEach(r=>{
+    if(!r.querySelector('.vck').checked)return;
+    const x=VP[+r.dataset.i],ti=r.querySelector('.vt').value.trim();if(!ti)return;
+    S.tasks.push({id:uid(),date:addDays(cur,x.off),q:+r.querySelector('.vq').value,title:ti,note:'',remind:r.querySelector('.vh').value||'',done:false,ct:Date.now()+n});n++;
+  });
+  save();$('vClear').click();closeM('mVoice');render();
+};
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec=null,recOn=false;
+if(!SR){$('vMic').style.display='none';$('vMicHint').textContent='这个浏览器不能直接识别语音。可以点输入框，用键盘上的话筒按钮说话：iPad 和安卓手机的输入法都有话筒键；Mac 上连按两下 Fn 键，或在“编辑”菜单里选“开始听写”。'}
+else $('vMicHint').textContent='也可以用键盘上的话筒按钮说话。';
+$('vMic').onclick=()=>{
+  if(recOn&&rec){rec.stop();return}
+  if(!localStorage.getItem('q4.voiceok')){
+    if(!confirm('提示：语音转文字由浏览器厂商完成（Chrome 用谷歌的服务器，Safari 用苹果的服务），你说的内容会传到他们那里。涉及客户名称、报价等敏感内容，建议直接打字。\n\n继续使用语音吗？'))return;
+    localStorage.setItem('q4.voiceok','1');
+  }
+  let base=$('vText').value;if(base&&!/[。，,\n]$/.test(base))base+='，';
+  try{
+    rec=new SR();rec.lang='zh-CN';rec.continuous=true;rec.interimResults=true;
+    rec.onresult=e=>{let fin='',tmp='';for(let i=0;i<e.results.length;i++){const r=e.results[i];if(r.isFinal)fin+=r[0].transcript+'，';else tmp+=r[0].transcript}$('vText').value=base+fin+tmp};
+    rec.onerror=e=>{$('vMicHint').textContent='语音识别出错：'+(e.error==='not-allowed'?'没有麦克风权限，请在浏览器设置里允许使用麦克风。':e.error==='network'?'需要联网才能识别。':e.error)};
+    rec.onend=()=>{recOn=false;$('vMic').classList.remove('on');$('vMic').textContent='🎤 开始说话'};
+    rec.start();recOn=true;$('vMic').classList.add('on');$('vMic').textContent='■ 停止说话';
+  }catch(err){$('vMicHint').textContent='无法启动语音识别：'+err.message}
+};
+function openVoice(){openM('mVoice');setTimeout(()=>$('vText').focus(),60)}
+$('bVoice').onclick=openVoice;
+
+/* ===== 快捷键 ===== */
+document.addEventListener('keydown',e=>{
+  const open=document.querySelector('.mask.on');
+  if(e.key==='Escape'){if(open){open.classList.remove('on');e.preventDefault()}$('toast').classList.remove('on');if(document.activeElement)document.activeElement.blur();return}
+  if((e.metaKey||e.ctrlKey)&&(e.key==='k'||e.key==='K')){e.preventDefault();openVoice();return}
+  if(e.metaKey||e.ctrlKey||e.altKey)return;
+  const tg=e.target.tagName;if(open||tg==='INPUT'||tg==='TEXTAREA'||tg==='SELECT')return;
+  if(/^[1-4]$/.test(e.key)){e.preventDefault();const i=document.querySelector('form.add[data-q="'+e.key+'"] input');if(i)i.focus()}
+  else if(e.key==='ArrowLeft'){cur=addDays(cur,-1);render()}
+  else if(e.key==='ArrowRight'){cur=addDays(cur,1);render()}
+  else if(e.key==='t'||e.key==='T'){cur=today();render()}
+  else if(e.key==='v'||e.key==='V'){e.preventDefault();openVoice()}
+  else if(e.key==='h'||e.key==='H'){$('bHist').click()}
+});
+
+/* 自检（仅在网址带 ?selftest 时运行，用测试数据，不碰正式记录） */
+if(TEST){
+  const out=[];const ok=(c,m)=>out.push((c?'通过 ':'失败 ')+m);
+  try{
+    const t=today(),y=addDays(t,-1),y2=addDays(t,-2);
+    S={tasks:[
+      {id:'A',date:y,q:1,title:'A 昨天没做完',done:false,ct:1},
+      {id:'B',date:y,q:2,title:'B 昨天已完成',done:true,ct:2},
+      {id:'C',date:y,q:3,title:'C 昨天的固定工作',done:false,recurId:'r0',ct:3},
+      {id:'D',date:y2,q:2,title:'D 前天没做完',done:false,carriedTo:y,ct:4},
+      {id:'E',date:y,q:2,title:'D 前天没做完',done:false,origin:y2,ct:5}],recurs:[],gen:{}};
+    const n1=carryOver(),td=dayTasks(t);
+    ok(n1===2,'延续：昨天未完成的 2 项复制到今天（实际 '+n1+'）');
+    ok(td.some(x=>x.title[0]==='A'&&x.origin===y),'延续：A 标记延续自昨天');
+    ok(td.some(x=>x.title[0]==='D'&&x.origin===y2),'延续：连续两天没做完，仍标记最早的日期');
+    ok(!td.some(x=>x.title[0]==='B'),'延续：已完成的不复制');
+    ok(!td.some(x=>x.title[0]==='C'),'延续：固定工作不复制');
+    ok(carryOver()===0,'延续：重复打开不会重复复制');
+    S.recurs=[{id:'r1',title:'每日例会',q:2,rep:'daily',remind:'09:00',start:t}];
+    ok(genRecur(t)===1&&genRecur(t)===0,'固定工作：每天只生成一次');
+    ok(genRecur(y)===0,'固定工作：不补生成过去的日子');
+    ok(matchRecur({rep:'weekly',dows:[parse(t).getDay()]},t)&&!matchRecur({rep:'weekly',dows:[(parse(t).getDay()+1)%7]},t),'固定工作：每周指定日判断正确');
+    const ic=icsText(t,'09:30','测试,提醒','备忘;内容','x1');
+    ok(ic.indexOf('BEGIN:VALARM')>0&&ic.indexOf('DTSTART:'+t.replace(/-/g,'')+'T093000')>0&&ic.indexOf('测试\\,提醒')>0,'日历文件：时间和提醒格式正确');
+    const vp=parseVoice('我今天要做五件事，上午九点开周会，下午三点半给客户送标书，这个很紧急。然后整理上周的报价单，明天上午十点给张总打电话，有空看看行业新闻');
+    const vs=vp.map(x=>x.title+'|'+x.hm+'|'+x.off+'|'+x.q).join('  ');
+    ok(vp.length===5,'语音：拆出 5 件事（实际 '+vp.length+'）：'+vs);
+    ok(vp[0]&&vp[0].title==='开周会'&&vp[0].hm==='09:00','语音：上午九点 → 09:00');
+    ok(vp[1]&&vp[1].hm==='15:30'&&vp[1].q===1,'语音：下午三点半 → 15:30，“这个很紧急”算到上一件，进第 1 象限');
+    ok(vp[2]&&vp[2].q===2&&!vp[2].hm,'语音：没时间没紧急 → 第 2 象限');
+    ok(vp[3]&&vp[3].off===1&&vp[3].hm==='10:00'&&vp[3].title==='给张总打电话','语音：明天上午十点 → 次日 10:00');
+    ok(vp[4]&&vp[4].q===4,'语音：“有空看看” → 第 4 象限');
+    const v2=parseVoice('第一给客户发报价第二整理合同，快一点');
+    ok(v2.length===2&&!v2[0].hm&&v2[1].q===1,'语音：“第一、第二”能拆开，“快一点”算作上一件紧急（实际 '+v2.map(x=>x.title+'|'+x.hm+'|'+x.q).join('，')+'）');
+    const v3=parseVoice('下午两点，去医院拿报告');
+    ok(v3.length===1&&v3[0].hm==='14:00'&&v3[0].title==='去医院拿报告','语音：时间单独一句，并到下一件事上');
+    S.tasks.push({id:'F',date:t,q:1,title:'下午三点前交测绘局备忘录',remind:'15:00',note:'先发客户确认，再盖章',done:false,ct:6},
+      {id:'G',date:t,q:3,title:'回复渠道商报价',done:true,doneAt:Date.now(),ct:7},
+      {id:'H',date:t,q:4,title:'整理桌面文件',done:false,ct:8});
+    save();
+  }catch(err){out.push('自检出错：'+err.message)}
+  const b=$('selftest');b.style.display='block';b.textContent='自检结果\n'+out.join('\n');
+  render();
+  if(/voice/.test(location.search)){$('vText').value='上午九点开周会，下午三点半给客户送标书，这个很紧急。然后整理上周的报价单，明天上午十点给张总打电话，有空看看行业新闻';$('vParse').click();openM('mVoice')}
+}else{
+  render();setInterval(tick,20000);tick();
+}
+</script>
+</body>
+</html>

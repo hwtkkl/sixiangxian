@@ -37,13 +37,18 @@ main{display:grid;grid-template-columns:1fr;gap:12px;padding:12px;max-width:1280
 .qs{color:var(--sub);font-size:12px}
 .qc{margin-left:auto;color:var(--sub);font-size:12px}
 ul{list-style:none;margin:0;padding:0 8px;flex:1}
-.task{display:flex;gap:10px;align-items:flex-start;padding:9px 6px;border-bottom:1px solid var(--line)}
+.task{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:flex-start;padding:10px 6px;border-bottom:1px solid var(--line)}
 .task:last-child{border-bottom:0}
-.chk{flex:none;width:26px;height:26px;border-radius:50%;border:2px solid var(--c);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
-.chk svg{width:14px;height:14px;opacity:0}
-.task.done .chk{background:var(--c)}
-.task.done .chk svg{opacity:1}
-.tb{flex:1;min-width:0;cursor:pointer}
+.tb{flex:1 1 100%;min-width:0;cursor:pointer}
+.ops{display:flex;flex-wrap:wrap;gap:6px;align-items:center;width:100%}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;flex:none}
+.seg button{border:0;background:#fff;padding:6px 12px;font-size:13px;cursor:pointer;color:var(--sub);font-family:inherit}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button.on{background:var(--c);color:#fff;font-weight:600}
+.seg button.on.un{background:#EEF1F5;color:var(--txt)}
+.op{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 10px;font-size:13px;cursor:pointer;color:var(--sub);font-family:inherit;flex:none}
+.op.on{border-color:#E0B65A;background:#FFF4E0;color:#A86400;font-weight:600}
+.op.note.on{border-color:#B9C7DA;background:#EEF3FA;color:#1E4E8C}
 .tt{word-break:break-word;line-height:1.45}
 .no{color:var(--sub);margin-right:4px}
 .task.done .tt{text-decoration:line-through;color:var(--sub)}
@@ -90,6 +95,12 @@ form.add button{border:0;border-radius:8px;background:var(--c);color:#fff;font-s
 #toast.on{display:block}
 #toast b{display:block;margin-bottom:4px}
 #selftest{display:none;background:#FFFBE6;border:1px solid #E0C36A;margin:12px;padding:10px;border-radius:8px;font-size:13px;white-space:pre-wrap}
+.bell{flex:none;border:0;background:transparent;font-size:17px;cursor:pointer;opacity:.28;padding:2px 4px;line-height:1;filter:grayscale(1)}
+.bell.on{opacity:1;filter:none}
+.bell:hover{opacity:.8}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{border:1px solid var(--line);background:#fff;border-radius:16px;padding:6px 11px;font-size:13px;cursor:pointer;color:var(--txt)}
+.chips button.on{border-color:var(--navy);background:var(--navy);color:#fff}
 .vrow{display:grid;grid-template-columns:24px 1fr;gap:6px 8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
 .vrow .vf{grid-column:2;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .vrow .vck{width:20px;height:20px}
@@ -168,13 +179,26 @@ kbd{display:inline-block;border:1px solid #CBD2DC;border-bottom-width:2px;border
     <button class="btn" id="mImport">导入备份</button>
     <input type="file" id="fImport" accept=".json,application/json" hidden>
   </div>
+  <h2 style="margin-top:16px">导出表格</h2>
+  <p class="hint">导出成表格文件（.csv），可以用 Excel、WPS、Numbers 打开查看、打印、做周报。表格只用来看，不能导回程序；换设备搬数据请用上面的“导出备份”。</p>
+  <div class="fld" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <span class="hint">从</span><input type="date" id="xFrom" style="width:auto;flex:1;min-width:140px">
+    <span class="hint">到</span><input type="date" id="xTo" style="width:auto;flex:1;min-width:140px">
+  </div>
+  <div class="acts">
+    <button class="btn" data-xr="day">当天</button>
+    <button class="btn" data-xr="week">本周</button>
+    <button class="btn" data-xr="month">本月</button>
+    <button class="btn" data-xr="all">全部</button>
+    <button class="btn pri" id="mCsv">导出表格</button>
+  </div>
   <h2 style="margin-top:16px">使用说明</h2>
   <div class="hint">
-    1. 在象限下方输入工作，按回车或“+”添加。点左边圆圈表示完成，再点一次取消。<br>
+    1. 在象限下方输入工作，按回车或“+”添加。每条工作下面有三组按钮：“完成 / 未完成”切换状态，“📝 备注”写备注，“🔔 提醒”设提醒（需要才设）。<br>
     2. 点工作内容可以修改，写备忘、改象限、改日期、设提醒、删除。<br>
     3. 用顶部的 ‹ › 或日期框翻看任意一天；“历史”里能看到每天的完成情况。<br>
     4. 以前没做完的工作，会自动复制一份到今天，并标上“延续自某日”。原来那天的记录保留不动。<br>
-    5. 提醒：网页版只在程序打开时弹出，想在程序关着时也收到，请在工作里点“加入系统日历”。Mac 客户端由系统通知中心提醒，程序关着也会按时提醒。<br>
+    5. 提醒：每项工作右边有个 🔔，点它设置提醒时间、提前多久、响一次还是持续响铃；不需要就不设。灰色表示没设，亮色表示已设。到点会弹窗响铃，可以点“10分钟后再提醒”。网页版只在程序打开时弹出，程序关着也想收到，请点“加入系统日历”。Mac 客户端由系统通知中心提醒，程序关着也会按时提醒。<br>
     6. 数据只保存在当前设备的浏览器里，不上传任何地方。不同设备之间不互通，可以用“导出备份”和“导入备份”搬数据。清除浏览器数据会把记录一起清掉，建议定期导出备份。<br>
     7. 语音助手：点“🎤 语音”，把今天的事一口气说完，再点“识别成工作清单”。说“这个很紧急”“这个很重要”会算到上一件事上。
   </div>
@@ -203,7 +227,39 @@ kbd{display:inline-block;border:1px solid #CBD2DC;border-bottom-width:2px;border
   <div class="acts" id="vAddWrap" style="display:none"><button class="btn pri" id="vAdd">全部加入</button><button class="btn" data-close>关闭</button></div>
 </div></div>
 
-<div id="toast"><b>⏰ 工作提醒</b><div id="tBody"></div><div class="acts"><button class="btn pri" id="tOk">知道了</button></div></div>
+<div id="toast"><b>⏰ 工作提醒</b><div id="tBody"></div><div class="acts"><button class="btn pri" id="tOk">知道了</button><button class="btn" id="tSnooze">10分钟后再提醒</button></div></div>
+
+<div class="mask" id="mNote"><div class="sheet">
+  <h2>备注</h2>
+  <p class="hint" id="nTitle"></p>
+  <div class="fld"><textarea id="nText" placeholder="进展、联系人、注意事项……"></textarea></div>
+  <div class="acts"><button class="btn pri" id="nSave">保存</button><button class="btn" data-close>取消</button></div>
+</div></div>
+
+<div class="mask" id="mRemind"><div class="sheet">
+  <h2>设置提醒</h2>
+  <p class="hint" id="rmTitle"></p>
+  <div class="fld"><label>快速选择</label><div class="chips" id="rmQuick">
+    <button type="button" data-m="15">15分钟后</button><button type="button" data-m="30">30分钟后</button><button type="button" data-m="60">1小时后</button><button type="button" data-m="120">2小时后</button><button type="button" data-t="18:00">今天18:00</button><button type="button" data-n="09:00">明早9:00</button>
+  </div></div>
+  <div class="fld" style="display:flex;gap:8px">
+    <div style="flex:1"><label class="hint">提醒日期</label><input type="date" id="rmDate"></div>
+    <div style="flex:1"><label class="hint">时间</label><input type="time" id="rmTime"></div>
+  </div>
+  <div class="fld"><label>提前提醒</label><div class="chips" id="rmAdv">
+    <button type="button" data-v="0">准时</button><button type="button" data-v="5">提前5分钟</button><button type="button" data-v="15">提前15分钟</button><button type="button" data-v="30">提前30分钟</button><button type="button" data-v="60">提前1小时</button><button type="button" data-v="1440">提前1天</button>
+  </div></div>
+  <div class="fld"><label>响铃方式</label><div class="chips" id="rmRing">
+    <button type="button" data-v="once">响一次</button><button type="button" data-v="loop">持续响铃，直到点“知道了”</button>
+  </div></div>
+  <div class="acts">
+    <button class="btn pri" id="rmSave">保存</button>
+    <button class="btn" id="rmCal">加入系统日历</button>
+    <button class="btn del" id="rmClear">不提醒</button>
+    <button class="btn" data-close>取消</button>
+  </div>
+  <p class="hint">每项工作可以设也可以不设。到点会弹窗、响铃，可以点“10分钟后再提醒”。Mac 客户端关着也会用系统通知提醒；手机和 iPad 上程序关着收不到，需要的话点“加入系统日历”，让系统日历来提醒。</p>
+</div></div>
 
 <script>
 const Q={1:{n:'重要且紧急',s:'马上做',c:'var(--q1)'},2:{n:'重要不紧急',s:'计划做',c:'var(--q2)'},3:{n:'紧急不重要',s:'尽快处理或交给别人',c:'var(--q3)'},4:{n:'不重要不紧急',s:'少做或不做',c:'var(--q4)'}};
@@ -236,7 +292,7 @@ let cur=today(),lastToday=today(),editId=null,eQv=1,rQv=1;
 function carryOver(){
   const t=today();let n=0;
   S.tasks.filter(x=>x.date<t&&!x.done&&!x.carriedTo&&!x.recurId).forEach(x=>{
-    S.tasks.push({id:uid(),date:t,q:x.q,title:x.title,note:x.note||'',remind:x.remind||'',done:false,origin:x.origin||x.date,ct:Date.now()});
+    S.tasks.push({id:uid(),date:t,q:x.q,title:x.title,note:x.note||'',remind:x.remind||'',adv:x.adv,ring:x.ring,done:false,origin:x.origin||x.date,ct:Date.now()});
     x.carriedTo=t;n++;
   });
   if(n)save();return n;
@@ -258,11 +314,26 @@ function sortTasks(a,b){if(a.done!==b.done)return a.done?1:-1;const ra=a.remind|
 const CHECK='<svg viewBox="0 0 16 16"><path d="M3 8.5l3.2 3L13 4.5" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 function itemHTML(x,i){
   const tags=[];
-  if(x.remind)tags.push('<span class="tag rm">🔔 '+esc(x.remind)+'</span>');
+  if(x.remind&&(x.rdate&&x.rdate!==x.date||x.adv||x.ring==='loop'))tags.push('<span class="tag rm">'+esc(remindText(x))+'</span>');
+  if(x.snoozeAt&&!x.done)tags.push('<span class="tag rm">稍后 '+hmOf(x.snoozeAt)+' 再提醒</span>');
   if(x.origin)tags.push('<span class="tag cf">延续自 '+short(x.origin)+'</span>');
   if(x.recurId)tags.push('<span class="tag rc">固定</span>');
   if(x.carriedTo&&!x.done)tags.push('<span class="tag">已延续到 '+short(x.carriedTo)+'</span>');
-  return '<li class="task'+(x.done?' done':'')+'" data-id="'+x.id+'"><button class="chk" aria-label="完成">'+CHECK+'</button><div class="tb"><div class="tt"><span class="no">'+(i+1)+'.</span>'+esc(x.title)+'</div>'+(tags.length?'<div class="meta">'+tags.join('')+'</div>':'')+(x.note?'<div class="nt">'+esc(x.note)+'</div>':'')+'</div></li>';
+  const ops='<div class="ops"><div class="seg" role="group" aria-label="状态"><button data-a="done" class="'+(x.done?'on':'')+'">✓ 完成</button><button data-a="undone" class="'+(x.done?'':'on un')+'">未完成</button></div>'
+    +'<button class="op note'+(x.note?' on':'')+'" data-a="note">📝 备注</button>'
+    +'<button class="op'+(x.remind?' on':'')+'" data-a="remind">🔔 '+(x.remind?esc((x.rdate&&x.rdate!==x.date?short(x.rdate)+' ':'')+x.remind):'提醒')+'</button></div>';
+  return '<li class="task'+(x.done?' done':'')+'" data-id="'+x.id+'"><div class="tb"><div class="tt"><span class="no">'+(i+1)+'.</span>'+esc(x.title)+'</div>'+(tags.length?'<div class="meta">'+tags.join('')+'</div>':'')+(x.note?'<div class="nt">'+esc(x.note)+'</div>':'')+'</div>'+ops+'</li>';
+}
+/* 提醒：x.remind 事情的时间；x.rdate 提醒日期（不填就是工作当天）；x.adv 提前几分钟；x.ring once/loop */
+function hmOf(ms){const d=new Date(ms);return pad(d.getHours())+':'+pad(d.getMinutes())}
+function fireAt(x){
+  if(!x.remind)return null;const d=parse(x.rdate||x.date),p=x.remind.split(':').map(Number);
+  d.setHours(p[0],p[1]-(x.adv||0),0,0);return d.getTime();
+}
+function remindText(x){
+  let s='🔔 ';if(x.rdate&&x.rdate!==x.date)s+=md(x.rdate)+' ';s+=x.remind;
+  if(x.adv)s+='（提前'+(x.adv>=60?x.adv/60+'小时':x.adv+'分钟')+'）';
+  if(x.ring==='loop')s+=' 持续响铃';return s;
 }
 function render(){
   carryOver();genRecur(cur);
@@ -283,9 +354,29 @@ function render(){
 $('grid').addEventListener('click',e=>{
   const li=e.target.closest('.task');if(!li)return;
   const x=S.tasks.find(t=>t.id===li.dataset.id);if(!x)return;
-  if(e.target.closest('.chk')){x.done=!x.done;x.doneAt=x.done?Date.now():null;save();render();}
-  else if(e.target.closest('.tb'))openEdit(x.id);
+  if(e.target.closest('.bell')){openRemind(x.id);return}
+  const op=e.target.closest('[data-a]');
+  if(op){
+    const a=op.dataset.a;
+    if(a==='done'||a==='undone'){const v=a==='done';if(!!x.done!==v){x.done=v;x.doneAt=v?Date.now():null;if(v)x.snoozeAt=null;save();render()}}
+    else if(a==='note')openNote(x.id);
+    else if(a==='remind')openRemind(x.id);
+    return;
+  }
+  if(e.target.closest('.tb'))openEdit(x.id);
 });
+/* 备注窗口 */
+let noteId=null;
+function openNote(id){
+  const x=S.tasks.find(t=>t.id===id);if(!x)return;noteId=id;
+  $('nTitle').textContent='工作：'+x.title;$('nText').value=x.note||'';
+  openM('mNote');setTimeout(()=>$('nText').focus(),60);
+}
+$('nSave').onclick=()=>{
+  const x=S.tasks.find(t=>t.id===noteId);if(!x)return;
+  x.note=$('nText').value.trim();save();closeM('mNote');render();
+};
+$('nText').addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){e.preventDefault();$('nSave').click()}});
 $('grid').addEventListener('submit',e=>{
   e.preventDefault();const f=e.target,q=+f.dataset.q,inp=f.querySelector('input'),v=inp.value.trim();
   if(!v)return;
@@ -326,8 +417,8 @@ $('eSave').onclick=()=>{
   const x=S.tasks.find(t=>t.id===editId);if(!x)return;
   const v=$('eName').value.trim();if(!v){alert('请填写工作内容');return}
   const nt=$('eTime').value||'';
-  if(nt!==(x.remind||'')||$('eDate').value!==x.date)x.notified=false;
-  x.title=v;x.q=eQv;x.note=$('eNote').value.trim();x.remind=nt;if($('eDate').value)x.date=$('eDate').value;
+  if(nt!==(x.remind||'')||$('eDate').value!==x.date){x.notified=false;x.snoozeAt=null}
+  x.title=v;x.q=eQv;x.note=$('eNote').value.trim();x.remind=nt;if(!nt){delete x.rdate;delete x.adv;delete x.ring}if($('eDate').value)x.date=$('eDate').value;
   save();closeM('mEdit');render();
 };
 $('eDel').onclick=()=>{
@@ -335,10 +426,10 @@ $('eDel').onclick=()=>{
   S.tasks=S.tasks.filter(t=>t.id!==editId);save();closeM('mEdit');render();
 };
 function icsEsc(s){return String(s||'').replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/,/g,'\\,').replace(/;/g,'\\;')}
-function icsText(date,time,title,note,id){
+function icsText(date,time,title,note,id,adv){
   const st=date.replace(/-/g,'')+'T'+time.replace(':','')+'00';
   const now=new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d+/,'');
-  return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//SiXiangXian//CN','CALSCALE:GREGORIAN','BEGIN:VEVENT','UID:'+id+'@sixiangxian','DTSTAMP:'+now,'DTSTART:'+st,'DURATION:PT15M','SUMMARY:'+icsEsc(title),'DESCRIPTION:'+icsEsc(note),'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+icsEsc(title),'TRIGGER:-PT0M','END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n');
+  return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//SiXiangXian//CN','CALSCALE:GREGORIAN','BEGIN:VEVENT','UID:'+id+'@sixiangxian','DTSTAMP:'+now,'DTSTART:'+st,'DURATION:PT15M','SUMMARY:'+icsEsc(title),'DESCRIPTION:'+icsEsc(note),'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+icsEsc(title),'TRIGGER:-PT'+(adv||0)+'M','END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n');
 }
 function download(name,text,type){
   if(NATIVE){nativePost({type:'file',name:name,text:text,open:/\.ics$/.test(name)});return}
@@ -348,7 +439,49 @@ function download(name,text,type){
 $('eCal').onclick=()=>{
   const t=$('eTime').value,d=$('eDate').value,n=$('eName').value.trim();
   if(!t){alert('请先填写提醒时间');return}
-  download('提醒_'+d+'_'+t.replace(':','')+'.ics',icsText(d,t,n,$('eNote').value,editId+'-'+d+t),'text/calendar');
+  const x=S.tasks.find(k=>k.id===editId)||{};
+  download('提醒_'+d+'_'+t.replace(':','')+'.ics',icsText(x.rdate||d,t,n,$('eNote').value,editId+'-'+d+t,x.adv),'text/calendar');
+};
+
+/* 提醒设置窗口 */
+let rmId=null,rmAdvV=0,rmRingV='once';
+function chipSel(el,v){el.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===String(v)))}
+function openRemind(id){
+  const x=S.tasks.find(t=>t.id===id);if(!x)return;rmId=id;
+  $('rmTitle').textContent='工作：'+x.title;
+  $('rmDate').value=x.rdate||x.date;$('rmTime').value=x.remind||'';
+  rmAdvV=x.adv||0;rmRingV=x.ring||'once';chipSel($('rmAdv'),rmAdvV);chipSel($('rmRing'),rmRingV);
+  $('rmClear').style.display=x.remind?'':'none';
+  openM('mRemind');
+}
+$('rmQuick').onclick=e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.m){const d=new Date(Date.now()+b.dataset.m*60e3);$('rmDate').value=fmt(d);$('rmTime').value=pad(d.getHours())+':'+pad(d.getMinutes());rmAdvV=0;chipSel($('rmAdv'),0)}
+  else if(b.dataset.t){$('rmDate').value=today();$('rmTime').value=b.dataset.t}
+  else if(b.dataset.n){$('rmDate').value=addDays(today(),1);$('rmTime').value=b.dataset.n}
+};
+$('rmAdv').onclick=e=>{const b=e.target.closest('button');if(!b)return;rmAdvV=+b.dataset.v;chipSel($('rmAdv'),rmAdvV)};
+$('rmRing').onclick=e=>{const b=e.target.closest('button');if(!b)return;rmRingV=b.dataset.v;chipSel($('rmRing'),rmRingV)};
+$('rmSave').onclick=()=>{
+  const x=S.tasks.find(t=>t.id===rmId);if(!x)return;
+  const tm=$('rmTime').value,dt=$('rmDate').value||x.date;
+  if(!tm){alert('请选择提醒时间，或点“不提醒”。');return}
+  x.remind=tm;x.rdate=dt!==x.date?dt:undefined;x.adv=rmAdvV||undefined;x.ring=rmRingV==='loop'?'loop':undefined;
+  x.notified=false;x.snoozeAt=null;
+  const f=fireAt(x);
+  save();closeM('mRemind');render();
+  if(f<Date.now())alert('提醒时间已经过了，这条提醒会马上弹出。');
+  checkRemind();
+};
+$('rmClear').onclick=()=>{
+  const x=S.tasks.find(t=>t.id===rmId);if(!x)return;
+  delete x.remind;delete x.rdate;delete x.adv;delete x.ring;x.notified=false;x.snoozeAt=null;
+  save();closeM('mRemind');render();
+};
+$('rmCal').onclick=()=>{
+  const x=S.tasks.find(t=>t.id===rmId);const tm=$('rmTime').value,dt=$('rmDate').value;
+  if(!x||!tm){alert('请先选择提醒时间');return}
+  download('提醒_'+dt+'_'+tm.replace(':','')+'.ics',icsText(dt,tm,x.title,x.note,x.id+'-'+dt+tm,rmAdvV),'text/calendar');
 };
 
 /* 固定工作 */
@@ -385,7 +518,7 @@ $('bHist').onclick=()=>{
 $('hList').onclick=e=>{const it=e.target.closest('[data-d]');if(!it)return;cur=it.dataset.d;closeM('mHist');render()};
 
 /* 更多：通知、备份 */
-$('bMore').onclick=()=>openM('mMore');
+$('bMore').onclick=()=>{setRange('month');openM('mMore')};
 $('mNotify').onclick=()=>{
   if(NATIVE){nativePost({type:'askNotify'});alert('Mac 客户端的提醒由系统通知中心负责，程序关着也会按时提醒。如果没收到，请到“系统设置 → 通知 → 四象限工作台”里打开允许通知。');return}
   if(!('Notification' in window)){alert('当前浏览器不支持系统通知。程序打开时仍会在页面顶部弹出提醒。iPad 和 iPhone 需要先把程序“添加到主屏幕”，再从主屏幕打开，才能开启通知。');return}
@@ -393,6 +526,37 @@ $('mNotify').onclick=()=>{
 };
 $('mExport').onclick=()=>download('四象限备份_'+today()+'.json',JSON.stringify({app:'sixiangxian',version:1,exportedAt:new Date().toISOString(),tasks:S.tasks,recurs:S.recurs,gen:S.gen},null,1),'application/json');
 $('mImport').onclick=()=>$('fImport').click();
+
+/* 导出表格（CSV，Excel / WPS / Numbers 可直接打开） */
+function csvCell(v){v=String(v==null?'':v);return /[",\r\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+function buildCsv(from,to){
+  const ls=S.tasks.filter(x=>(!from||x.date>=from)&&(!to||x.date<=to))
+    .sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:a.q!==b.q?a.q-b.q:sortTasks(a,b));
+  const head=['日期','星期','象限','象限名称','序号','工作内容','状态','完成时间','提醒时间','备忘','来源'];
+  const rows=[head];let k='',n=0;
+  ls.forEach(x=>{
+    const kk=x.date+'|'+x.q;if(kk!==k){k=kk;n=0}n++;
+    let st=x.done?'已完成':'未完成';if(!x.done&&x.carriedTo)st='未完成（已延续到'+md(x.carriedTo)+'）';
+    let dt='';if(x.done&&x.doneAt){const d=new Date(x.doneAt);dt=fmt(d)+' '+pad(d.getHours())+':'+pad(d.getMinutes())}
+    const src=[x.origin?'延续自'+x.origin:'',x.recurId?'固定工作':''].filter(Boolean).join('；');
+    rows.push([x.date,'周'+WK[parse(x.date).getDay()],x.q,Q[x.q].n,n,x.title,st,dt,x.remind||'',x.note||'',src]);
+  });
+  return{text:'\uFEFF'+rows.map(r=>r.map(csvCell).join(',')).join('\r\n'),count:ls.length};
+}
+function setRange(r){
+  const t=cur;let f=t,e=t;
+  if(r==='week'){const w=(parse(t).getDay()+6)%7;f=addDays(t,-w);e=addDays(f,6)}
+  else if(r==='month'){f=t.slice(0,8)+'01';const d=parse(f);d.setMonth(d.getMonth()+1);d.setDate(0);e=fmt(d)}
+  else if(r==='all'){const ds=S.tasks.map(x=>x.date).sort();f=ds[0]||t;e=ds[ds.length-1]||t}
+  $('xFrom').value=f;$('xTo').value=e;
+}
+document.querySelectorAll('[data-xr]').forEach(b=>b.onclick=()=>setRange(b.dataset.xr));
+$('mCsv').onclick=()=>{
+  let f=$('xFrom').value,e=$('xTo').value;if(f&&e&&f>e){const s=f;f=e;e=s}
+  const r=buildCsv(f,e);
+  if(!r.count){alert('这段时间里没有工作记录。');return}
+  download('四象限工作表_'+(f||'开始')+'至'+(e||'现在')+'.csv',r.text,'text/csv;charset=utf-8');
+};
 $('fImport').onchange=e=>{
   const f=e.target.files[0];if(!f)return;
   const rd=new FileReader();
@@ -417,16 +581,31 @@ async function sysNotify(body){
   }catch(e){}
 }
 function checkRemind(){
-  const t=today(),hm=nowHM();
-  const due=S.tasks.filter(x=>x.date===t&&x.remind&&!x.done&&!x.notified&&x.remind<=hm);
+  const now=Date.now();
+  const due=S.tasks.filter(x=>{
+    if(x.done)return false;
+    if(x.snoozeAt&&x.snoozeAt<=now)return true;
+    if(x.notified||!x.remind)return false;
+    const f=fireAt(x);return f<=now&&f>now-6*3600e3;   /* 超过 6 小时的旧提醒不再补弹 */
+  });
   if(!due.length)return;
-  due.forEach(x=>x.notified=true);save();
-  const body=due.map(x=>x.remind+'　'+x.title).join('\n');
-  $('tBody').innerHTML=due.map(x=>'<div>'+esc(x.remind)+'　'+esc(x.title)+'</div>').join('');
+  due.forEach(x=>{x.notified=true;x.snoozeAt=null});save();render();
+  lastDue=due.map(x=>x.id);
+  const line=x=>x.remind+'　'+x.title+(x.adv?'（'+x.adv+'分钟后开始）':'');
+  $('tBody').innerHTML=due.map(x=>'<div>'+esc(line(x))+'</div>').join('');
   $('toast').classList.add('on');beep();if(navigator.vibrate)navigator.vibrate([200,100,200]);
-  sysNotify(body);
+  stopRing();
+  if(due.some(x=>x.ring==='loop')){const t0=Date.now();ringTimer=setInterval(()=>{if(Date.now()-t0>180000){stopRing();return}beep();if(navigator.vibrate)navigator.vibrate(300)},2500)}
+  sysNotify(due.map(line).join('\n'));
 }
-$('tOk').onclick=()=>$('toast').classList.remove('on');
+let lastDue=[],ringTimer=null;
+function stopRing(){if(ringTimer){clearInterval(ringTimer);ringTimer=null}}
+$('tOk').onclick=()=>{stopRing();$('toast').classList.remove('on')};
+$('tSnooze').onclick=()=>{
+  const at=Date.now()+10*60e3;
+  lastDue.forEach(id=>{const x=S.tasks.find(t=>t.id===id);if(x&&!x.done)x.snoozeAt=at});
+  save();stopRing();$('toast').classList.remove('on');render();
+};
 function tick(){
   const t=today();
   if(t!==lastToday){const wasToday=cur===lastToday;lastToday=t;if(wasToday)cur=t;render()}
@@ -581,6 +760,39 @@ if(TEST){
     ok(v2.length===2&&!v2[0].hm&&v2[1].q===1,'语音：“第一、第二”能拆开，“快一点”算作上一件紧急（实际 '+v2.map(x=>x.title+'|'+x.hm+'|'+x.q).join('，')+'）');
     const v3=parseVoice('下午两点，去医院拿报告');
     ok(v3.length===1&&v3[0].hm==='14:00'&&v3[0].title==='去医院拿报告','语音：时间单独一句，并到下一件事上');
+    const cv=buildCsv(y,t),cl=cv.text.slice(1).split('\r\n');
+    ok(cv.text.charCodeAt(0)===0xFEFF&&cl[0].indexOf('日期,星期,象限')===0,'表格：带 Excel 中文识别标记，表头正确');
+    ok(cl.some(l=>l.indexOf('已延续到')>0)&&cl.some(l=>l.indexOf('延续自')>0),'表格：延续关系写进状态和来源');
+    S.tasks.push({id:'Z',date:t,q:2,title:'报价单',note:'含税, 含运费',done:false,ct:9});
+    const cq=buildCsv(t,t).text;S.tasks=S.tasks.filter(x=>x.id!=='Z');
+    ok(cq.indexOf('"含税, 含运费"')>0&&cq.indexOf(',报价单,')>0,'表格：含逗号的备忘自动加引号');
+    ok(buildCsv(addDays(t,30),addDays(t,31)).count===0,'表格：日期范围筛选正确');
+    const fx={date:t,remind:'15:00',adv:30},fe=parse(t);fe.setHours(14,30,0,0);
+    ok(fireAt(fx)===fe.getTime(),'提醒：提前 30 分钟，15:00 的事 14:30 响');
+    const fy={date:t,remind:'09:00',adv:1440},fz=parse(addDays(t,-1));fz.setHours(9,0,0,0);
+    ok(fireAt(fy)===fz.getTime(),'提醒：提前 1 天，算到前一天同一时间');
+    const fw={date:t,rdate:addDays(t,1),remind:'09:00'},fv=parse(addDays(t,1));fv.setHours(9,0,0,0);
+    ok(fireAt(fw)===fv.getTime()&&remindText(fw).indexOf(md(addDays(t,1)))>0,'提醒：可以设在别的日期，并显示日期');
+    ok(fireAt({date:t})===null,'提醒：不设提醒就不响');
+    ok(icsText(t,'15:00','a','b','c',30).indexOf('TRIGGER:-PT30M')>0,'日历文件：提前提醒写进系统日历');
+    const sv=S.tasks.slice();
+    S.tasks=[{id:'S1',date:t,q:1,title:'稍后提醒测试',remind:'00:00',notified:true,snoozeAt:Date.now()-1000,done:false,ct:1},{id:'S2',date:t,q:1,title:'已完成不响',remind:'00:00',done:true,ct:2}];
+    const ts=$('tBody');checkRemind();
+    ok(ts.textContent.indexOf('稍后提醒测试')>=0&&ts.textContent.indexOf('已完成不响')<0&&!S.tasks[0].snoozeAt,'提醒：“10分钟后再提醒”到点会再响，已完成的不响');
+    stopRing();$('toast').classList.remove('on');S.tasks=sv;
+    S.tasks.push({id:'U1',date:t,q:4,title:'按钮测试',done:false,ct:99});render();
+    const ub=()=>document.querySelector('.task[data-id="U1"]');
+    ok(ub()&&ub().querySelector('[data-a="done"]')&&ub().querySelector('[data-a="undone"].on')&&ub().querySelector('[data-a="note"]')&&ub().querySelector('[data-a="remind"]'),'按钮：每条都有 完成 / 未完成 / 备注 / 提醒，默认“未完成”');
+    ub().querySelector('[data-a="done"]').click();
+    const u1=()=>S.tasks.find(x=>x.id==='U1');
+    ok(u1().done===true&&ub().querySelector('[data-a="done"]').classList.contains('on'),'按钮：点“完成”变成已完成');
+    ub().querySelector('[data-a="undone"]').click();
+    ok(u1().done===false&&!u1().doneAt,'按钮：点“未完成”改回未完成');
+    ub().querySelector('[data-a="note"]').click();$('nText').value='已约好周五见面';$('nSave').click();
+    ok(u1().note==='已约好周五见面'&&ub().querySelector('.nt').textContent==='已约好周五见面','按钮：备注保存后显示在工作下面');
+    ub().querySelector('[data-a="remind"]').click();
+    ok($('mRemind').classList.contains('on'),'按钮：点“提醒”打开提醒设置');closeM('mRemind');
+    S.tasks=S.tasks.filter(x=>x.id!=='U1');
     S.tasks.push({id:'F',date:t,q:1,title:'下午三点前交测绘局备忘录',remind:'15:00',note:'先发客户确认，再盖章',done:false,ct:6},
       {id:'G',date:t,q:3,title:'回复渠道商报价',done:true,doneAt:Date.now(),ct:7},
       {id:'H',date:t,q:4,title:'整理桌面文件',done:false,ct:8});
@@ -589,6 +801,7 @@ if(TEST){
   const b=$('selftest');b.style.display='block';b.textContent='自检结果\n'+out.join('\n');
   render();
   if(/voice/.test(location.search)){$('vText').value='上午九点开周会，下午三点半给客户送标书，这个很紧急。然后整理上周的报价单，明天上午十点给张总打电话，有空看看行业新闻';$('vParse').click();openM('mVoice')}
+  if(/remind/.test(location.search)){const f=S.tasks.find(x=>x.id==='F');if(f){f.adv=30;f.ring='loop';save();render()}openRemind('F')}
 }else{
   render();setInterval(tick,20000);tick();
 }

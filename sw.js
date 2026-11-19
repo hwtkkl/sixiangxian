@@ -1,5 +1,5 @@
 // 离线缓存：装到主屏幕后断网也能打开。只缓存程序文件，不涉及工作数据。
-const C = 'q4-v1.6';
+const C = 'q4-v1.9';
 const F = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(C).then(c => c.addAll(F))); self.skipWaiting(); });
 self.addEventListener('activate', e => {

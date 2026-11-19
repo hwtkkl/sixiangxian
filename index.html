@@ -40,15 +40,21 @@ ul{list-style:none;margin:0;padding:0 8px;flex:1}
 .task{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:flex-start;padding:10px 6px;border-bottom:1px solid var(--line)}
 .task:last-child{border-bottom:0}
 .tb{flex:1 1 100%;min-width:0;cursor:pointer}
-.ops{display:flex;flex-wrap:wrap;gap:6px;align-items:center;width:100%}
-.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;flex:none}
-.seg button{border:0;background:#fff;padding:6px 12px;font-size:13px;cursor:pointer;color:var(--sub);font-family:inherit}
-.seg button+button{border-left:1px solid var(--line)}
-.seg button.on{background:var(--c);color:#fff;font-weight:600}
-.seg button.on.un{background:#EEF1F5;color:var(--txt)}
-.op{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 10px;font-size:13px;cursor:pointer;color:var(--sub);font-family:inherit;flex:none}
+.ops{display:flex;flex-wrap:wrap;gap:8px;align-items:center;width:100%}
+/* 状态切换：绿色实底 = 已完成，橙色 = 未完成，没选中的是白底灰字 */
+.seg{display:inline-flex;border:1.5px solid #C9D0DA;border-radius:10px;overflow:hidden;flex:none;background:#fff}
+.seg button{border:0;background:#fff;padding:8px 16px;font-size:14px;cursor:pointer;color:#9AA3AF;font-family:inherit;min-width:84px;transition:background .15s,color .15s}
+.seg button+button{border-left:1.5px solid #C9D0DA}
+.seg button:hover{background:#F4F6F9;color:var(--txt)}
+.seg button[data-a="done"].on{background:#1E9E5A;color:#fff;font-weight:700}
+.seg button[data-a="undone"].on{background:#FFEDD5;color:#C2410C;font-weight:700;box-shadow:inset 0 0 0 1.5px #FDBA74}
+.op{border:1.5px solid #C9D0DA;background:#fff;border-radius:10px;padding:8px 13px;font-size:14px;cursor:pointer;color:#5A6372;font-family:inherit;flex:none}
+.op:hover{background:#F4F6F9}
 .op.on{border-color:#E0B65A;background:#FFF4E0;color:#A86400;font-weight:600}
 .op.note.on{border-color:#B9C7DA;background:#EEF3FA;color:#1E4E8C}
+.op.cont.on{border-color:#B9A9F2;background:#F1EDFF;color:#5B3FC4;font-weight:600}
+.task.done{background:#F2FAF5;border-radius:8px}
+.task.done .op{opacity:.75}
 .tt{word-break:break-word;line-height:1.45}
 .no{color:var(--sub);margin-right:4px}
 .task.done .tt{text-decoration:line-through;color:var(--sub)}
@@ -174,6 +180,8 @@ kbd{display:inline-block;border:1px solid #CBD2DC;border-bottom-width:2px;border
 <div class="mask" id="mMore"><div class="sheet">
   <h2>更多</h2>
   <div class="acts col">
+    <label class="btn" style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="oAuto" style="width:18px;height:18px">没做完的工作全部自动延续到第二天</label>
+    <p class="hint" style="margin:0 0 4px">不勾：只有你点了“↪ 延续”的工作才会带到第二天（默认）。勾上：所有没做完的都会自动带过去。</p>
     <button class="btn" id="mNotify">开启系统通知</button>
     <button class="btn" id="mExport">导出备份（换设备、防丢失）</button>
     <button class="btn" id="mImport">导入备份</button>
@@ -204,7 +212,7 @@ kbd{display:inline-block;border:1px solid #CBD2DC;border-bottom-width:2px;border
     1. 在象限下方输入工作，按回车或“+”添加。每条工作下面有三组按钮：“完成 / 未完成”切换状态，“📝 备注”写备注，“🔔 提醒”设提醒（需要才设）。<br>
     2. 点工作内容可以修改，写备忘、改象限、改日期、设提醒、删除。<br>
     3. 用顶部的 ‹ › 或日期框翻看任意一天；“历史”里能看到每天的完成情况。<br>
-    4. 以前没做完的工作，会自动复制一份到今天，并标上“延续自某日”。原来那天的记录保留不动。<br>
+    4. 延续：没做完的工作下面有“↪ 延续”按钮，由你决定要不要带到第二天。今天点一下变成“↪ 明天继续”，第二天会复制一份过去，标上“延续自某日”；翻到以前的日子，点“↪ 延续到今天”立刻复制到今天。原来那天的记录保留不动。想让没做完的全部自动延续，在“更多”里勾选。<br>
     5. 提醒：点工作下面的“🔔 提醒”，可以设提醒时间、提前多久、响一次还是持续响铃；不需要就不设。设好后按钮变橙色并显示时间。到点会弹窗响铃，可以点“10分钟后再提醒”。网页版只在程序打开时弹出，程序关着也想收到，请点“加入系统日历”。Mac 客户端由系统通知中心提醒，程序关着也会按时提醒。<br>
     6. 数据保存在当前设备上。在“更多 → 多设备同步”里填好私有仓库、令牌和同步密码，Mac、iPad、手机之间就会自动同步，上传前先加密。没开同步时，可以用“导出备份”和“导入备份”搬数据。<br>
     7. 语音助手：点“🎤 语音”，把今天的事一口气说完，再点“识别成工作清单”。说“这个很紧急”“这个很重要”会算到上一件事上。
@@ -289,7 +297,7 @@ function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function md(s){const d=parse(s);return (d.getMonth()+1)+'月'+d.getDate()+'日'}
 function short(s){const d=parse(s);return (d.getMonth()+1)+'-'+d.getDate()}
-function load(){try{const o=(NATIVE&&window.__Q4DATA)?window.__Q4DATA:JSON.parse(localStorage.getItem(KEY)||'{}');return{tasks:o.tasks||[],recurs:o.recurs||[],gen:o.gen||{},del:o.del||{},delr:o.delr||{}}}catch(e){return{tasks:[],recurs:[],gen:{},del:{},delr:{}}}}
+function load(){try{const o=(NATIVE&&window.__Q4DATA)?window.__Q4DATA:JSON.parse(localStorage.getItem(KEY)||'{}');return{tasks:o.tasks||[],recurs:o.recurs||[],gen:o.gen||{},del:o.del||{},delr:o.delr||{},opt:o.opt||{}}}catch(e){return{tasks:[],recurs:[],gen:{},del:{},delr:{},opt:{}}}}
 function persist(){const s=JSON.stringify(S);try{localStorage.setItem(KEY,s)}catch(e){if(!NATIVE)alert('保存失败：'+e.message)}if(NATIVE)nativePost({type:'save',data:s})}
 function save(){stamp();persist();if(CFG){dirty=true;schedulePush()}}
 
@@ -305,11 +313,17 @@ function stamp(){
 function prune(d){const lim=Date.now()-90*864e5,o={};for(const k in d)if(d[k]>lim)o[k]=d[k];return o}
 function mergeData(a,b){
   const mx=(x,y)=>{const o=Object.assign({},x||{});for(const k in (y||{}))if(!o[k]||y[k]>o[k])o[k]=y[k];return o};
-  const pick=(la,lb,del)=>{const m=new Map();(la||[]).concat(lb||[]).forEach(x=>{const o=m.get(x.id);if(!o||(x.u||0)>(o.u||0))m.set(x.id,x)});return[...m.values()].filter(x=>!(del[x.id]&&del[x.id]>=(x.u||0)))};
+  const pick=(la,lb,del)=>{const m=new Map();(la||[]).concat(lb||[]).forEach(x=>{const o=m.get(x.id);if(!o){m.set(x.id,x);return}
+    let w=(x.u||0)>(o.u||0)?x:o;const l=w===x?o:x;
+    /* “完成/未完成”单独比时间：哪台设备最后点的就听哪台，不会被别的改动（比如自动延续）盖掉 */
+    const ds=y=>y.du||(y.done?y.doneAt||0:0);
+    if(!!l.done!==!!w.done&&ds(l)>ds(w)){w=Object.assign({},w,{done:l.done,doneAt:l.doneAt,du:ds(l)});if(l.done)delete w.carriedTo}
+    m.set(x.id,w)});return[...m.values()].filter(x=>!(del[x.id]&&del[x.id]>=(x.u||0)))};
   const del=mx(a.del,b.del),delr=mx(a.delr,b.delr);
-  return{tasks:pick(a.tasks,b.tasks,del),recurs:pick(a.recurs,b.recurs,delr),gen:Object.assign({},a.gen,b.gen),del:prune(del),delr:prune(delr)};
+  const oa=a.opt||{},ob=b.opt||{};
+  return{tasks:pick(a.tasks,b.tasks,del),recurs:pick(a.recurs,b.recurs,delr),gen:Object.assign({},a.gen,b.gen),del:prune(del),delr:prune(delr),opt:(ob.u||0)>(oa.u||0)?ob:oa};
 }
-function norm(o){const by=(a,b)=>a.id<b.id?-1:a.id>b.id?1:0,cl=l=>(l||[]).map(x=>{const c=Object.assign({},x);delete c.notified;return c}).sort(by);const sk=m=>{const r={};Object.keys(m||{}).sort().forEach(k=>r[k]=m[k]);return r};return JSON.stringify({t:cl(o.tasks),r:cl(o.recurs),g:sk(o.gen),d:sk(o.del),dr:sk(o.delr)})}
+function norm(o){const by=(a,b)=>a.id<b.id?-1:a.id>b.id?1:0,cl=l=>(l||[]).map(x=>{const c=Object.assign({},x);delete c.notified;return c}).sort(by);const sk=m=>{const r={};Object.keys(m||{}).sort().forEach(k=>r[k]=m[k]);return r};return JSON.stringify({t:cl(o.tasks),r:cl(o.recurs),g:sk(o.gen),d:sk(o.del),dr:sk(o.delr),o:sk(o.opt)})}
 
 /* ===== 加密：同步密码 → PBKDF2 → AES-256-GCM，全部在本机完成 ===== */
 const TE=new TextEncoder(),TD=new TextDecoder();
@@ -334,18 +348,33 @@ async function decryptObj(s,pw){
 
 let S=load();
 let cur=today(),lastToday=today(),editId=null,eQv=1,rQv=1;
-let CFG=null,dirty=false,pushTimer=null,syncing=false,lastSync=0,syncErr='';
+let CFG=null,dirty=false,pushTimer=null,syncing=false,lastSync=0,syncErr='',firstSync=false;
 if(!TEST){try{CFG=(NATIVE&&window.__Q4CFG)?window.__Q4CFG:JSON.parse(localStorage.getItem('q4.sync')||'null')}catch(e){CFG=null}}
 snap();
 
 /* 没做完的工作自动延续到今天：原记录保留，并标记已延续；固定工作不延续 */
 function carryOver(){
-  const t=today();let n=0;
-  S.tasks.filter(x=>x.date<t&&!x.done&&!x.carriedTo&&!x.recurId).forEach(x=>{
-    S.tasks.push({id:'c-'+x.id+'-'+t,date:t,q:x.q,title:x.title,note:x.note||'',remind:x.remind||'',adv:x.adv,ring:x.ring,done:false,origin:x.origin||x.date,ct:Date.now()});
-    x.carriedTo=t;n++;
-  });
+  if(CFG&&!firstSync)return 0;   /* 开了同步：先拿到其他设备的最新状态，再决定哪些没做完 */
+  const t=today(),auto=!!(S.opt&&S.opt.autoCarry);let n=0;
+  /* 只延续你点了“↪ 延续”的；在“更多”里打开“全部自动延续”后，没做完的都延续 */
+  S.tasks.filter(x=>x.date<t&&!x.done&&!x.carriedTo&&!x.recurId&&(x.keep||auto)).forEach(x=>{n+=carryOne(x,t)});
   if(n)save();return n;
+}
+function carryOne(x,t){
+  if(x.done||x.carriedTo||x.recurId||x.date>=t)return 0;
+  const id='c-'+x.id+'-'+t;if(S.tasks.some(k=>k.id===id))return 0;
+  S.tasks.push({id:id,date:t,q:x.q,title:x.title,note:x.note||'',remind:x.remind||'',adv:x.adv,ring:x.ring,done:false,origin:x.origin||x.date,ct:Date.now(),auto:1,keep:x.keep||undefined});
+  x.carriedTo=t;return 1;
+}
+/* 原来那天的工作在别的设备上点了完成：把自动延续出来、还没动过的那条撤掉 */
+function fixCarry(){
+  let n=0;const by={};S.tasks.forEach(x=>by[x.id]=x);
+  S.tasks.filter(x=>x.auto&&!x.done&&x.id.indexOf('c-')===0).forEach(c=>{
+    const oid=c.id.slice(2,c.id.length-11),o=by[oid];
+    if(o&&o.done&&c.title===o.title&&(c.note||'')===(o.note||'')){c.__drop=1;delete o.carriedTo;n++}
+  });
+  if(n)S.tasks=S.tasks.filter(x=>!x.__drop);
+  return n;
 }
 function matchRecur(r,d){const w=parse(d).getDay();if(r.rep==='daily')return true;if(r.rep==='weekday')return w>=1&&w<=5;return(r.dows||[]).includes(w)}
 /* 固定工作：只为今天及以后生成，每天每项只生成一次 */
@@ -362,15 +391,23 @@ function dayTasks(d){return S.tasks.filter(x=>x.date===d)}
 function sortTasks(a,b){if(a.done!==b.done)return a.done?1:-1;const ra=a.remind||'99:99',rb=b.remind||'99:99';if(ra!==rb)return ra<rb?-1:1;return(a.ct||0)-(b.ct||0)}
 
 const CHECK='<svg viewBox="0 0 16 16"><path d="M3 8.5l3.2 3L13 4.5" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+/* 延续按钮：没做完的工作才有。今天及以后：点一下标记“明天继续”；以前的日子：点一下立刻复制到今天 */
+function contBtn(x){
+  if(x.done||x.recurId)return'';
+  if(x.carriedTo)return'<button class="op cont on" data-a="gocarry" title="点一下跳到那一天">↪ 已延续到 '+short(x.carriedTo)+'</button>';
+  if(x.date<today())return'<button class="op cont" data-a="carry">↪ 延续到今天</button>';
+  return'<button class="op cont'+(x.keep?' on':'')+'" data-a="keep" aria-pressed="'+!!x.keep+'">'+(x.keep?'↪ 明天继续':'↪ 延续')+'</button>';
+}
 function itemHTML(x,i){
   const tags=[];
   if(x.remind&&(x.rdate&&x.rdate!==x.date||x.adv||x.ring==='loop'))tags.push('<span class="tag rm">'+esc(remindText(x))+'</span>');
   if(x.snoozeAt&&!x.done)tags.push('<span class="tag rm">稍后 '+hmOf(x.snoozeAt)+' 再提醒</span>');
   if(x.origin)tags.push('<span class="tag cf">延续自 '+short(x.origin)+'</span>');
   if(x.recurId)tags.push('<span class="tag rc">固定</span>');
-  if(x.carriedTo&&!x.done)tags.push('<span class="tag">已延续到 '+short(x.carriedTo)+'</span>');
-  const ops='<div class="ops"><div class="seg" role="group" aria-label="状态"><button data-a="done" class="'+(x.done?'on':'')+'">✓ 完成</button><button data-a="undone" class="'+(x.done?'':'on un')+'">未完成</button></div>'
+  if(x.carriedTo&&!x.done&&x.recurId)tags.push('<span class="tag">已延续到 '+short(x.carriedTo)+'</span>');
+  const ops='<div class="ops"><div class="seg" role="group" aria-label="状态"><button data-a="done" aria-pressed="'+!!x.done+'" class="'+(x.done?'on':'')+'">'+(x.done?'✓ 已完成':'○ 完成')+'</button><button data-a="undone" aria-pressed="'+!x.done+'" class="'+(x.done?'':'on un')+'">'+(x.done?'未完成':'● 未完成')+'</button></div>'
     +'<button class="op note'+(x.note?' on':'')+'" data-a="note">📝 备注</button>'
+    +contBtn(x)
     +'<button class="op'+(x.remind?' on':'')+'" data-a="remind">🔔 '+(x.remind?esc((x.rdate&&x.rdate!==x.date?short(x.rdate)+' ':'')+x.remind):'提醒')+'</button></div>';
   return '<li class="task'+(x.done?' done':'')+'" data-id="'+x.id+'"><div class="tb"><div class="tt"><span class="no">'+(i+1)+'.</span>'+esc(x.title)+'</div>'+(tags.length?'<div class="meta">'+tags.join('')+'</div>':'')+(x.note?'<div class="nt">'+esc(x.note)+'</div>':'')+'</div>'+ops+'</li>';
 }
@@ -408,9 +445,12 @@ $('grid').addEventListener('click',e=>{
   const op=e.target.closest('[data-a]');
   if(op){
     const a=op.dataset.a;
-    if(a==='done'||a==='undone'){const v=a==='done';if(!!x.done!==v){x.done=v;x.doneAt=v?Date.now():null;if(v)x.snoozeAt=null;save();render()}}
+    if(a==='done'||a==='undone'){const v=a==='done';if(!!x.done!==v){x.done=v;x.doneAt=v?Date.now():null;x.du=Date.now();if(v)x.snoozeAt=null;save();render()}}
     else if(a==='note')openNote(x.id);
     else if(a==='remind')openRemind(x.id);
+    else if(a==='keep'){x.keep=x.keep?undefined:true;save();render()}
+    else if(a==='carry'){if(carryOne(x,today())){save();render()}}
+    else if(a==='gocarry'){cur=x.carriedTo;render()}
     return;
   }
   if(e.target.closest('.tb'))openEdit(x.id);
@@ -571,7 +611,8 @@ $('bHist').onclick=()=>{
 $('hList').onclick=e=>{const it=e.target.closest('[data-d]');if(!it)return;cur=it.dataset.d;closeM('mHist');render()};
 
 /* 更多：通知、备份 */
-$('bMore').onclick=()=>{setRange('month');fillSync();openM('mMore')};
+$('bMore').onclick=()=>{setRange('month');fillSync();$('oAuto').checked=!!(S.opt&&S.opt.autoCarry);openM('mMore')};
+$('oAuto').onchange=e=>{S.opt={autoCarry:e.target.checked,u:Date.now()};save();render()};
 $('mNotify').onclick=()=>{
   if(NATIVE){nativePost({type:'askNotify'});alert('Mac 客户端的提醒由系统通知中心负责，程序关着也会按时提醒。如果没收到，请到“系统设置 → 通知 → 四象限工作台”里打开允许通知。');return}
   if(!('Notification' in window)){alert('当前浏览器不支持系统通知。程序打开时仍会在页面顶部弹出提醒。iPad 和 iPhone 需要先把程序“添加到主屏幕”，再从主屏幕打开，才能开启通知。');return}
@@ -733,7 +774,7 @@ $('tSnooze').onclick=()=>{
 };
 function tick(){
   const t=today();
-  if(t!==lastToday){const wasToday=cur===lastToday;lastToday=t;if(wasToday)cur=t;render()}
+  if(t!==lastToday){const wasToday=cur===lastToday;lastToday=t;if(wasToday)cur=t;if(CFG){firstSync=false;syncNow()}render()}
   checkRemind();
 }
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){tick();if(CFG&&Date.now()-lastSync>15000)syncNow()}});
@@ -767,13 +808,14 @@ async function syncNow(){
       }
       dirty=false;
       if(ro){const m=mergeData(S,ro);if(norm(m)!==norm(S)){S=m;persist();snap();render()}}
+      if(fixCarry()){stamp();persist();render()}
       if(ro&&norm(S)===norm(ro))break;
-      const enc=await encryptObj({tasks:S.tasks,recurs:S.recurs,gen:S.gen,del:S.del,delr:S.delr},CFG.pw,salt);
+      const enc=await encryptObj({tasks:S.tasks,recurs:S.recurs,gen:S.gen,del:S.del,delr:S.delr,opt:S.opt||{}},CFG.pw,salt);
       if(await ghPut(enc,rem&&rem.sha)==='ok')break;
     }
     lastSync=Date.now();setSync('☁ 已同步 '+hmOf(lastSync));
   }catch(e){setSync('☁ 同步失败：'+(e.message||e),true)}
-  finally{syncing=false;if(dirty)schedulePush()}
+  finally{syncing=false;if(!firstSync){firstSync=true;render()}if(dirty)schedulePush()}
 }
 setInterval(()=>{if(CFG&&!document.hidden&&Date.now()-lastSync>60000)syncNow()},20000);
 function saveCfg(c){
@@ -928,7 +970,12 @@ if(TEST){
       {id:'B',date:y,q:2,title:'B 昨天已完成',done:true,ct:2},
       {id:'C',date:y,q:3,title:'C 昨天的固定工作',done:false,recurId:'r0',ct:3},
       {id:'D',date:y2,q:2,title:'D 前天没做完',done:false,carriedTo:y,ct:4},
-      {id:'E',date:y,q:2,title:'D 前天没做完',done:false,origin:y2,ct:5}],recurs:[],gen:{}};
+      {id:'E',date:y,q:2,title:'D 前天没做完',done:false,origin:y2,ct:5}],recurs:[],gen:{},opt:{}};
+    ok(carryOver()===0&&!dayTasks(t).length,'延续：默认不自动延续，由你自己决定');
+    S.tasks[0].keep=true;
+    ok(carryOver()===1&&dayTasks(t).some(x=>x.title[0]==='A'&&x.keep),'延续：点了“延续”的才带到今天，而且明天还会继续');
+    S.tasks=S.tasks.filter(x=>x.date!==t);delete S.tasks[0].carriedTo;delete S.tasks[0].keep;
+    S.opt={autoCarry:true};
     const n1=carryOver(),td=dayTasks(t);
     ok(n1===2,'延续：昨天未完成的 2 项复制到今天（实际 '+n1+'）');
     ok(td.some(x=>x.title[0]==='A'&&x.origin===y),'延续：A 标记延续自昨天');
@@ -936,6 +983,13 @@ if(TEST){
     ok(!td.some(x=>x.title[0]==='B'),'延续：已完成的不复制');
     ok(!td.some(x=>x.title[0]==='C'),'延续：固定工作不复制');
     ok(carryOver()===0,'延续：重复打开不会重复复制');
+    S.opt={};
+    const hx={id:'H1',date:addDays(t,-3),q:2,title:'三天前没做完',done:false,ct:7};S.tasks.push(hx);
+    ok(carryOne(hx,t)===1&&hx.carriedTo===t&&carryOne(hx,t)===0,'延续：以前的日子点“延续到今天”立刻复制，点两次也只有一条');
+    S.tasks=S.tasks.filter(x=>x.id!=='H1'&&x.id!=='c-H1-'+t);
+    const ma=mergeData({tasks:[],opt:{autoCarry:true,u:200}},{tasks:[],opt:{autoCarry:false,u:100}});
+    ok(ma.opt.autoCarry===true,'延续：“全部自动延续”的设置也会在设备之间同步');
+    S.opt={autoCarry:true};
     S.recurs=[{id:'r1',title:'每日例会',q:2,rep:'daily',remind:'09:00',start:t}];
     ok(genRecur(t)===1&&genRecur(t)===0,'固定工作：每天只生成一次');
     ok(genRecur(y)===0,'固定工作：不补生成过去的日子');
@@ -997,16 +1051,32 @@ if(TEST){
     const M=mergeData(A,B),mt=id=>M.tasks.find(x=>x.id===id);
     ok(mt('m1').title==='新'&&mt('m2')&&mt('m4')&&!mt('m3')&&M.gen.x&&M.gen.y,'同步：两边合并，新的覆盖旧的，各自新增的都保留，删除会同步');
     ok(norm(mergeData(M,M))===norm(M),'同步：重复合并结果不变');
-    S={tasks:[{id:'cx',date:y,q:1,title:'跨天',done:false}],recurs:[],gen:{}};snap();carryOver();const c1=S.tasks.find(x=>x.origin).id;
-    S={tasks:[{id:'cx',date:y,q:1,title:'跨天',done:false}],recurs:[],gen:{}};snap();carryOver();
+    S={tasks:[{id:'cx',date:y,q:1,title:'跨天',done:false}],recurs:[],gen:{},opt:{autoCarry:true}};snap();carryOver();const c1=S.tasks.find(x=>x.origin).id;
+    S={tasks:[{id:'cx',date:y,q:1,title:'跨天',done:false,keep:true}],recurs:[],gen:{}};snap();carryOver();
     ok(c1===S.tasks.find(x=>x.origin).id,'同步：两台设备各自延续同一件事，不会变成两条');
+    /* 本次修复：A 设备昨晚点了完成，B 设备今早没同步就自动延续，不能把“完成”盖掉 */
+    const T0=Date.now();
+    const PA={tasks:[{id:'q1',date:y,q:1,title:'甲',done:true,doneAt:T0-3600e3,du:T0-3600e3,u:T0-3600e3}],recurs:[],gen:{},del:{}};
+    const PB={tasks:[{id:'q1',date:y,q:1,title:'甲',done:false,carriedTo:t,u:T0},{id:'c-q1-'+t,date:t,q:1,title:'甲',note:'',done:false,origin:y,auto:1,u:T0}],recurs:[],gen:{},del:{}};
+    const PM=mergeData(PB,PA),q1=PM.tasks.find(x=>x.id==='q1');
+    ok(q1.done===true&&!q1.carriedTo,'修复：别的设备点的“完成”不会被自动延续盖掉');
+    S=PM;const fx1=fixCarry();
+    ok(fx1===1&&!S.tasks.find(x=>x.id==='c-q1-'+t),'修复：已在别处完成的，今天自动延续出来的那条会撤掉');
+    S={tasks:[{id:'q2',date:y,q:1,title:'乙',done:true,du:T0},{id:'c-q2-'+t,date:t,q:1,title:'乙',note:'今天补了备注',done:false,origin:y,auto:1}],recurs:[],gen:{}};
+    ok(fixCarry()===0,'修复：今天那条你改过（写了备注），不会被撤掉');
+    const MU=mergeData({tasks:[{id:'q3',done:false,du:T0,u:T0}]},{tasks:[{id:'q3',done:true,doneAt:T0-9e5,du:T0-9e5,u:T0-9e5}]});
+    ok(MU.tasks[0].done===false,'修复：后来点了“未完成”，以最后一次为准');
+    const keepCFG=CFG,keepFS=firstSync;CFG={repo:'x/y'};firstSync=false;
+    S={tasks:[{id:'q4',date:y,q:1,title:'丙',done:false,keep:true}],recurs:[],gen:{}};
+    ok(carryOver()===0&&!S.tasks.find(x=>x.origin),'修复：开了同步时，先同步再延续');
+    CFG=keepCFG;firstSync=keepFS;
     S=keep;snap();
     S.tasks.push({id:'F',date:t,q:1,title:'下午三点前交测绘局备忘录',remind:'15:00',note:'先发客户确认，再盖章',done:false,ct:6},
       {id:'G',date:t,q:3,title:'回复渠道商报价',done:true,doneAt:Date.now(),ct:7},
       {id:'H',date:t,q:4,title:'整理桌面文件',done:false,ct:8});
     save();
   }catch(err){out.push('自检出错：'+err.message)}
-  const b=$('selftest');b.style.display='block';b.textContent='自检结果\n'+out.join('\n');
+  const b=$('selftest');b.style.display=/demo/.test(location.search)?'none':'block';b.textContent='自检结果\n'+out.join('\n');
   (async()=>{
     const ex=[];const ok2=(c,m)=>ex.push((c?'通过 ':'失败 ')+m);
     try{
@@ -1023,11 +1093,13 @@ if(TEST){
       }
     }catch(err){ex.push('加密自检出错：'+err.message)}
     b.textContent+='\n'+ex.join('\n');b.dataset.done='1';
+    if(/demo/.test(location.search))b.style.display='none';
   })();
   if(/xlsx/.test(location.search)){const p=document.createElement('pre');p.id='xout';p.style.display='none';p.textContent=b64(buildXlsx('',addDays(today(),1)).data);document.body.appendChild(p)}
   render();
   if(/voice/.test(location.search)){$('vText').value='上午九点开周会，下午三点半给客户送标书，这个很紧急。然后整理上周的报价单，明天上午十点给张总打电话，有空看看行业新闻';$('vParse').click();openM('mVoice')}
   if(/remind/.test(location.search)){const f=S.tasks.find(x=>x.id==='F');if(f){f.adv=30;f.ring='loop';save();render()}openRemind('F')}
+  if(/demo/.test(location.search)){const f=S.tasks.find(x=>x.id==='F');if(f){f.keep=true;render()}}
 }else{
   render();setInterval(tick,20000);tick();
   if(CFG){setSync('☁ 准备同步…');setTimeout(syncNow,600)}

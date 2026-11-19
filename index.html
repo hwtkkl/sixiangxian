@@ -207,6 +207,7 @@ kbd{display:inline-block;border:1px solid #CBD2DC;border-bottom-width:2px;border
     <button class="btn" data-xr="all">全部</button>
     <button class="btn pri" id="mCsv">导出 Excel</button>
   </div>
+  <p class="hint" id="verTxt" style="margin-top:14px"></p>
   <h2 style="margin-top:16px">使用说明</h2>
   <div class="hint">
     1. 在象限下方输入工作，按回车或“+”添加。每条工作下面有三组按钮：“完成 / 未完成”切换状态，“📝 备注”写备注，“🔔 提醒”设提醒（需要才设）。<br>
@@ -483,7 +484,7 @@ $('dpick').onchange=e=>{if(e.target.value){cur=e.target.value;render()}};
 
 /* 弹窗 */
 function openM(id){$(id).classList.add('on')}
-function closeM(id){$(id).classList.remove('on')}
+function closeM(id){$(id).classList.remove('on');if(id==='mVoice'&&recOn)micStop()}
 document.querySelectorAll('.mask').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m||e.target.closest('[data-close]'))m.classList.remove('on')})});
 function qpick(el,val,set){
   el.innerHTML=[1,2,3,4].map(q=>'<button type="button" style="--c:'+Q[q].c+'" data-q="'+q+'" class="'+(q===val?'on':'')+'">'+q+' '+Q[q].n+'</button>').join('');
@@ -611,7 +612,7 @@ $('bHist').onclick=()=>{
 $('hList').onclick=e=>{const it=e.target.closest('[data-d]');if(!it)return;cur=it.dataset.d;closeM('mHist');render()};
 
 /* 更多：通知、备份 */
-$('bMore').onclick=()=>{setRange('month');fillSync();$('oAuto').checked=!!(S.opt&&S.opt.autoCarry);openM('mMore')};
+$('bMore').onclick=()=>{setRange('month');fillSync();$('oAuto').checked=!!(S.opt&&S.opt.autoCarry);$('verTxt').textContent='当前版本：'+APPVER+(NATIVE?'（Mac 客户端）':'（网页版）');openM('mMore')};
 $('oAuto').onchange=e=>{S.opt={autoCarry:e.target.checked,u:Date.now()};save();render()};
 $('mNotify').onclick=()=>{
   if(NATIVE){nativePost({type:'askNotify'});alert('Mac 客户端的提醒由系统通知中心负责，程序关着也会按时提醒。如果没收到，请到“系统设置 → 通知 → 四象限工作台”里打开允许通知。');return}
@@ -849,7 +850,16 @@ $('sOff').onclick=()=>{
   saveCfg(null);setSync('');fillSync();
 };
 
-if(location.protocol.indexOf('http')===0&&'serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+/* 网页版自动更新：发现新版程序后自动刷新一次，不用手动清缓存 */
+const APPVER='V1.11';
+if(location.protocol.indexOf('http')===0&&'serviceWorker' in navigator){
+  let hadCtl=!!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadCtl&&!window.__q4rl){window.__q4rl=1;location.reload()}hadCtl=true});
+  navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)r.update().catch(()=>{})});
+    setInterval(()=>r.update().catch(()=>{}),30*60e3);
+  }).catch(()=>{});
+}
 
 /* ===== 语音助手：把一段话拆成工作，识别时间、日期和象限（全部在本机计算） ===== */
 const CN={'零':0,'〇':0,'一':1,'二':2,'两':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9};
@@ -912,7 +922,7 @@ function showPreview(){
   $('vPreview').innerHTML=VP.length?'<h2 style="margin-top:14px">识别结果（'+VP.length+' 项，可修改）</h2>'+VP.map((x,i)=>'<div class="vrow" data-i="'+i+'"><input type="checkbox" class="vck" checked aria-label="加入"><input type="text" class="vt" value="'+esc(x.title)+'"><div class="vf"><select class="vq">'+[1,2,3,4].map(q=>'<option value="'+q+'"'+(q===x.q?' selected':'')+'>'+q+' '+Q[q].n+'</option>').join('')+'</select><input type="time" class="vh" value="'+x.hm+'"><span class="tag">'+dayName(addDays(cur,x.off))+'</span></div></div>').join(''):'<p class="hint">没有识别出工作，换个说法再试试。</p>';
   $('vAddWrap').style.display=VP.length?'flex':'none';
 }
-$('vParse').onclick=()=>{if(recOn&&rec)rec.stop();VP=parseVoice($('vText').value);showPreview()};
+$('vParse').onclick=()=>{if(recOn)micStop();VP=parseVoice($('vText').value);showPreview()};
 $('vClear').onclick=()=>{$('vText').value='';VP=[];$('vPreview').innerHTML='';$('vAddWrap').style.display='none'};
 $('vText').addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){e.preventDefault();$('vParse').click()}});
 $('vAdd').onclick=()=>{
@@ -924,25 +934,42 @@ $('vAdd').onclick=()=>{
   });
   save();$('vClear').click();closeM('mVoice');render();
 };
-const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec=null,recOn=false;
-if(!SR){$('vMic').style.display='none';$('vMicHint').textContent='这个浏览器不能直接识别语音。可以点输入框，用键盘上的话筒按钮说话：iPad 和安卓手机的输入法都有话筒键；Mac 上连按两下 Fn 键，或在“编辑”菜单里选“开始听写”。'}
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec=null,recOn=false,recBase='';
+function micUI(on){recOn=on;$('vMic').classList.toggle('on',on);$('vMic').textContent=on?'■ 停止说话':'🎤 开始说话'}
+function micStop(){
+  if(NATIVE)nativePost({type:'speechStop'});
+  else if(rec){try{rec.stop()}catch(e){}const r=rec;setTimeout(()=>{try{r.abort()}catch(e){}},1500)}
+  micUI(false);   /* 不管识别服务有没有回应，按钮都立刻恢复，不会卡住 */
+}
+if(NATIVE)$('vMicHint').textContent='点“开始说话”用苹果的语音识别；也可以连按两下 Fn 键用系统听写。';
+else if(!SR){$('vMic').style.display='none';$('vMicHint').textContent='这个浏览器不能直接识别语音。可以点输入框，用键盘上的话筒按钮说话：iPad 和安卓手机的输入法都有话筒键；Mac 上连按两下 Fn 键，或在“编辑”菜单里选“开始听写”。'}
 else $('vMicHint').textContent='也可以用键盘上的话筒按钮说话。';
+/* Mac 客户端：原生语音识别把结果送回这里 */
+window.__q4speech=m=>{
+  if(m.text!=null)$('vText').value=recBase+m.text;
+  if(m.error){$('vMicHint').textContent='语音识别出错：'+m.error;micUI(false)}
+  if(m.end)micUI(false);
+};
 $('vMic').onclick=()=>{
-  if(recOn&&rec){rec.stop();return}
+  if(recOn){micStop();return}
   if(!localStorage.getItem('q4.voiceok')){
-    if(!confirm('提示：语音转文字由浏览器厂商完成（Chrome 用谷歌的服务器，Safari 用苹果的服务），你说的内容会传到他们那里。涉及客户名称、报价等敏感内容，建议直接打字。\n\n继续使用语音吗？'))return;
+    if(!confirm('提示：语音转文字由'+(NATIVE?'苹果的语音识别服务':'浏览器厂商（Chrome 用谷歌的服务器，Safari 用苹果的服务）')+'完成，你说的内容会传到他们那里。涉及客户名称、报价等敏感内容，建议直接打字。\n\n继续使用语音吗？'))return;
     localStorage.setItem('q4.voiceok','1');
   }
-  let base=$('vText').value;if(base&&!/[。，,\n]$/.test(base))base+='，';
+  recBase=$('vText').value;if(recBase&&!/[。，,\n]$/.test(recBase))recBase+='，';
+  $('vMicHint').textContent='正在听，说完点“停止说话”。';
+  if(NATIVE){micUI(true);nativePost({type:'speechStart'});return}
   try{
     rec=new SR();rec.lang='zh-CN';rec.continuous=true;rec.interimResults=true;
-    rec.onresult=e=>{let fin='',tmp='';for(let i=0;i<e.results.length;i++){const r=e.results[i];if(r.isFinal)fin+=r[0].transcript+'，';else tmp+=r[0].transcript}$('vText').value=base+fin+tmp};
-    rec.onerror=e=>{$('vMicHint').textContent='语音识别出错：'+(e.error==='not-allowed'?'没有麦克风权限，请在浏览器设置里允许使用麦克风。':e.error==='network'?'需要联网才能识别。':e.error)};
-    rec.onend=()=>{recOn=false;$('vMic').classList.remove('on');$('vMic').textContent='🎤 开始说话'};
-    rec.start();recOn=true;$('vMic').classList.add('on');$('vMic').textContent='■ 停止说话';
-  }catch(err){$('vMicHint').textContent='无法启动语音识别：'+err.message}
+    rec.onresult=e=>{let fin='',tmp='';for(let i=0;i<e.results.length;i++){const r=e.results[i];if(r.isFinal)fin+=r[0].transcript+'，';else tmp+=r[0].transcript}$('vText').value=recBase+fin+tmp};
+    rec.onerror=e=>{$('vMicHint').textContent='语音识别出错：'+(e.error==='not-allowed'||e.error==='service-not-allowed'?'没有麦克风权限。请到“系统设置 → 隐私与安全性 → 麦克风”里打开本浏览器，并在网址左边的图标里允许麦克风。':e.error==='network'?'需要联网才能识别。':e.error==='no-speech'?'没有听到声音，再试一次。':e.error);micUI(false)};
+    rec.onend=()=>micUI(false);
+    rec.start();micUI(true);
+  }catch(err){$('vMicHint').textContent='无法启动语音识别：'+err.message;micUI(false)}
 };
 function openVoice(){openM('mVoice');setTimeout(()=>$('vText').focus(),60)}
+$('mVoice').addEventListener('click',e=>{if(recOn&&(e.target===$('mVoice')||e.target.closest('[data-close]')))micStop()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&recOn)micStop()},true);
 $('bVoice').onclick=openVoice;
 
 /* ===== 快捷键 ===== */
